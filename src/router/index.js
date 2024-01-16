@@ -79,6 +79,16 @@ const routes = [
             },
           },
           {
+            path: 'buylist_result',
+            name: 'userbuylist_result',
+            component: () => import(/* webpackChunkName: "about3" */ '../views/user/buylist_result/VE.vue'),
+            meta: { title: '席巴商城 -用户购物车结算' },
+            beforeEnter: (to, from, next) => { //未登录跳转login
+              if(!store.state.IsLogin)next('/user/login');
+              else next();
+            },
+          },
+          {
             path: 'historylist',
             name: 'userhistorylist',
             component: () => import(/* webpackChunkName: "about3" */ '../views/user/historylist/VE.vue'),

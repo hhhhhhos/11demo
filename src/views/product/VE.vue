@@ -10,7 +10,7 @@
         <h1>&lt;&lt;&nbsp;&nbsp;{{OneData.name}}&nbsp;&nbsp;>></h1>
         <h1 style="font-weight:bolder;color: red;">&nbsp;{{OneData.price}}元</h1>
         <p>{{OneData.info}}</p>
-        <div style="margin: 100px 0 40px 0;display: flex;">
+        <div style="margin: 100px 0 40px 0;display: flex;" class="mc2">
           <el-button size="medium" type="warning"  style="color:white;" @click="addtobuylist">加入购物车</el-button>
           <el-input-number style="top: 0px;font-size: larger;margin-left: 40px;" v-model="product.num" :min="1" :max="OneData.num" label="数量">
           </el-input-number>
@@ -98,18 +98,18 @@ export default {
 </style>
 
 <style>
-.el-input__inner{
+.mc2 .el-input__inner{
   height: 65px;
   padding: 0;
 }
-.el-input-number__decrease, .el-input-number__increase{
+.mc2 .el-input-number__decrease,.mc2 .el-input-number__increase{
   width: 40px;
   height: 63px;
   position: absolute;
   top:1px;
 }
 
-.el-input-number {
+.mc2 .el-input-number {
   line-height: 65px;
   width:130px;
 }

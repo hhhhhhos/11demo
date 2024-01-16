@@ -16,15 +16,18 @@
         :label="column.label"
         :width="column.width">
         <template slot-scope="scope">
-          <div v-if="column.label=='创建时间'">{{ tableData[scope.$index][column.prop].replace(/T/g, ' ') }}</div>
-          <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
-          <div v-else-if="column.label=='购买数量'" style="display: flex;">
-             <el-button icon="el-icon-plus" circle size="mini" @click="tableData[scope.$index][column.prop]++"></el-button>
-                <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index][column.prop] }}</div>
-             <el-button icon="el-icon-minus" circle size="mini" @click="tableData[scope.$index][column.prop]>1?tableData[scope.$index][column.prop]--:tableData[scope.$index][column.prop]"></el-button>
+          <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
+          <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
+          <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
+             <el-button icon="el-icon-plus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]++"></el-button>
+                <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
+             <el-button icon="el-icon-minus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]>1?tableData[scope.$index]['buylist'][column.prop]--:tableData[scope.$index]['buylist'][column.prop]"></el-button>
           </div>
-          <div v-else-if="column.label=='操作'"></div>
-          <div v-else>{{ tableData[scope.$index][column.prop] }}</div>
+          <div v-else-if="column.label=='操作'">
+            <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
+          </div>
+          <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
+          <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
         </template>
       </el-table-column>
     </el-table>
@@ -54,7 +57,8 @@ export default {
       currentPage:1,
       TotalPage:null,
       PageSize:10,
-      IsTableLoading:true
+      IsTableLoading:true,
+      val:[]
     }
   },
   methods:{
@@ -71,7 +75,6 @@ export default {
           this.tableData = response.data.data.records
           this.TotalPage = response.data.data.total
           this.IsTableLoading = false
-          console.log(response)
           this.$message.success("获取成功")
         }
       }).catch(error=>{
@@ -92,29 +95,95 @@ export default {
     // 表格列选择
     handleSelectionChange(val){
       console.log(val)
+      this.val = val
+      this.$emit('SelectRow',val)
     },
     // 更新表格
     updatetable(){
-      
+      axios.post('/buylist/update',this.tableData)
+      .then(response=>{
+        if(response.data.code)this.$message.success(response.data.data)
+        else this.$message.error(response.data.msg)
+        console.log(response)
+      }).catch(error=>{
+        this.$message.error(error.data.msg);
+        console.log(error)
+      })
+    },
+    // 点击删除
+    confirmtodelete(str,id){
+      this.$confirm('确定删除'+str+"吗", '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.deletebyid(id)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        });
+    },
+    // 根据id删除 请求范例
+    deletebyid(id){
+      axios.delete('/buylist/deletebyid',{params: {D_id:id}})
+      .then(response=>{
+        if(response.data.code){
+          this.$message.success(response.data.data)
+          setTimeout(() => {window.location.reload()}, 500);
+        }
+        else this.$message.error(response.data.msg)
+        console.log(response)
+      }).catch(error=>{
+        this.$message.error(error.data.msg);
+        console.log(error)
+      })
     }
   },
   created(){
     this.gettable()
   },
+  // 页面关闭或者刷新不会触发beforeDestroy
   beforeDestroy(){
     this.updatetable()
+  },
+  mounted() {
+    // 刷新或关闭网页触发
+    window.onbeforeunload = () => {
+        this.updatetable();
+    } 
+  },
+  // 深层监听器
+  watch:{
+    // 点加减时触发
+    tableData:{
+      deep: true,
+      handler:function(){
+        for(let i=0;i<this.val.length;i++){
+        for(let j=0;j<this.tableData.length;j++){
+          if(this.val[i].id===this.tableData[j].id){
+            this.val[i].product_num = this.tableData[j].product_num;
+            break;
+          }
+        }
+      }
+      this.$emit('SelectRow',this.val)
+      //console.log("watch!")
+      }
+    }
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.el-button:focus {
+.myc1 .el-button:focus {
   background-color: white;
   color: black;
   border-color: #DCDFE6;
 }
-.el-button:hover{
+.myc1 .el-button:hover{
   background-color: white;
 }
 

@@ -9,7 +9,7 @@
         <div v-else style="margin: 5px 90px;display: flex;">
           <div style="width: 100px;">{{ index }}</div>:
           <div style="margin:0px 20px ;">
-            <el-input v-if="index!='id'&&index!='create_time'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+            <el-input v-if="index!='id'&&index!='create_time'&&index!='role'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
             <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
           </div>
         </div>
