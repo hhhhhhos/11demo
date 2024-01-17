@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="margin: 50px 100px;" class="myborder">
+    <div style="margin: 50px 100px;" class="">
       <ElTable1 :columns="columns1" :geturl="geturl"/>  
     </div>
   </div>

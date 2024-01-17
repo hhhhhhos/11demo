@@ -30,7 +30,8 @@ const axios = require('axios');
 export default {
   props: {
     columns:Array,
-    geturl:String
+    geturl:String,
+    PtableData:Array
   },
   data() {
     return{
@@ -75,7 +76,12 @@ export default {
     }
   },
   created(){
-    this.gettable()
+    // 没数据才请求
+    if(!this.PtableData)this.gettable()
+    else {
+      this.IsTableLoading = false
+      this.tableData=  this.PtableData
+    }
   }
 }
 </script>

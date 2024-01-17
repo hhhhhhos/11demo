@@ -77,6 +77,7 @@ export default {
       console.log(key)
       this.FType = key
       if(key==="0")this.FType=null
+      this.currentPage = 1
       this.getproduct()
 
     },
