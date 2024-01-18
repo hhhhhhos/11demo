@@ -39,64 +39,30 @@ const routes = [
         redirect: '/user/info',
         children:[
           {
-            path: 'regis',
-            name: 'userregis',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/regis/VE.vue'),
-            meta: { title: '席巴商城 -用户注册' },
-            beforeEnter: (to, from, next) => { //已登录跳转info
-              if(store.state.IsLogin)next('/user/info');
-              else next();
-            },
-          },
-          {
             path: 'info',
             name: 'userinfo',
             component: () => import(/* webpackChunkName: "about3" */ '../views/user/info/VE.vue'),
             meta: { title: '席巴商城 -用户信息' },
-            beforeEnter: (to, from, next) => { //未登录跳转login
-              if(!store.state.IsLogin)next('/user/login');
-              else next();
-            },
-          },
-          {
-            path: 'login',
-            name: 'userlogin',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/login/VE.vue'),
-            meta: { title: '席巴商城 -用户登录' },
-            beforeEnter: (to, from, next) => { //已登录跳转info
-              if(store.state.IsLogin)next('/user/info');
-              else next();
-            },
+
           },
           {
             path: 'buylist',
             name: 'userbuylist',
             component: () => import(/* webpackChunkName: "about3" */ '../views/user/buylist/VE.vue'),
             meta: { title: '席巴商城 -用户购物车' },
-            beforeEnter: (to, from, next) => { //未登录跳转login
-              if(!store.state.IsLogin)next('/user/login');
-              else next();
-            },
+
           },
           {
             path: 'buylist_result',
             name: 'userbuylist_result',
             component: () => import(/* webpackChunkName: "about3" */ '../views/user/buylist_result/VE.vue'),
             meta: { title: '席巴商城 -用户购物车结算' },
-            beforeEnter: (to, from, next) => { //未登录跳转login
-              if(!store.state.IsLogin)next('/user/login');
-              else next();
-            },
           },
           {
             path: 'historylist',
             name: 'userhistorylist',
             component: () => import(/* webpackChunkName: "about3" */ '../views/user/historylist/VE.vue'),
             meta: { title: '席巴商城 -用户历史订单' },
-            beforeEnter: (to, from, next) => { //未登录跳转login
-              if(!store.state.IsLogin)next('/user/login');
-              else next();
-            },
           },
         ]
       },
@@ -121,7 +87,14 @@ const routes = [
         meta: { title: '席巴商城 -404' }
       }
     ]
-  }
+  },
+  {
+    path: '/login',
+    name: 'logIn',
+    component: () => import(/* webpackChunkName: "about3" */ '../views/LogIn.vue'),
+    meta: { title: '席巴商城 -用户登录' },
+
+  },
 ]
 
 const router = new VueRouter({
@@ -137,15 +110,29 @@ router.onError((error) => {
   if (isChunkLoadFailed) {
     location.reload()
   }
+  console.error('Navigation error:', error.message);
 })
 
 // 路由守卫？放在路由实例后面
+// 跳转前做点事
 router.beforeEach((to, from, next) => {
+  // 提醒自己不要死循环
+  console.log(to.path)
+  console.log(from.path)
+  console.log("不要无限跳转")
   // 设定标题
   if (to.meta.title) {
     document.title = to.meta.title
   }
 
+  // 前端登录跳转
+  const allowedPaths = ['/login', '/product','/home'];
+  // login
+  if(!store.state.IsLogin && !allowedPaths.includes(to.path)){
+    next('/login')
+  }
+    
+  
 
   //404
   const { resolved } = router.resolve(to.path)
@@ -154,6 +141,16 @@ router.beforeEach((to, from, next) => {
   } else {
     next('/404') // 没有符合的就404
   }
-})   
+}) 
+
+// 在完成路由跳转后执行一些逻辑
+router.afterEach((to, from) => {
+
+  // 示例：输出一条日志
+  console.log(`Navigated from ${from.path} to ${to.path}`);
+  
+  // 在这里可以执行其他需要在路由跳转后进行的操作
+});
+
 
 export default router

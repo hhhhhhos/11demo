@@ -32,21 +32,24 @@ export default {
         { label: '操作' , width: '180'}
       ],
       geturl:'/buylist/page',
-      TotalPrice:0
+      TotalPrice:0,
+      Datas:[]
     }
   },
   methods:{
     // 根据emit更新价格
     selectrow(datas){
       this.TotalPrice = 0
+      this.Datas = datas
       datas.forEach(data=>{
         this.TotalPrice += data.product.price*data.buylist.product_num
       })
     },
     // 跳转结算页
     gotoresult(){
+      console.log(this.Datas)
       if(this.TotalPrice===0)this.$message.error("未选择商品")
-      else this.$router.push("/user/buylist_result")
+      else this.$router.push({name:"userbuylist_result",params:{datas:this.Datas}})
     }
   }
 }

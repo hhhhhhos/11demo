@@ -16,8 +16,9 @@
   </div>
 </template>
 
-<script>
 
+<script>
+import axios from '@/utils'
 export default {
   components: {
   },
@@ -35,7 +36,6 @@ export default {
   },
   mounted(){
     // 初始化时 检查一次本地和
-    const axios = require('axios')
     //服务器已登录 但本地记录没登录，就同步个名字,状态改成登录
     axios.get('/user/name')
     .then(response=>{
@@ -44,7 +44,7 @@ export default {
         this.$store.state.IsLogin = true
         this.$store.state.UserName = response.data.data
       }else{
-        this.$message.error("error:"+response.data.msg);
+        //this.$message.error("error:"+response.data.msg);
         this.$store.state.IsLogin = false
       }
     })

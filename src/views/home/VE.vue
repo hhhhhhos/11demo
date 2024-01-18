@@ -18,7 +18,7 @@
     <!-- 左右间距 -->
     <div style="margin:0 auto;width:80%;">
       <!-- 商品架 -->
-      <div style="display: flex;flex-wrap: wrap;margin:50px auto;justify-content: space-around;">
+      <div v-loading="IsTableLoading" style="display: flex;flex-wrap: wrap;margin:50px auto;justify-content: space-around;">
         <!-- 商品卡 -->
         <div v-for="(product, index) in tableData" @click="cardclick(product.id)"
           :key="index" class="myborder" style="width:220px;height:190px;display:block;cursor: pointer;margin:30px;" >
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-const axios = require('axios')
+import axios from '@/utils'
 
 export default {
   data() {

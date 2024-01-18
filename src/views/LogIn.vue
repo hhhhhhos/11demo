@@ -1,28 +1,41 @@
 <template>
-  <div>
-    <div v-if="!this.$store.state.IsLogin" class="login-box">
-      <h2>用户登陆</h2>
-      <form>
-        <input type="text" v-model=name placeholder="用户名">
-        <input type="password" v-model=password placeholder="密码">
-        <p><router-link to="/user/regis">注册</router-link></p>
-        <el-button type="submit" @click="login">登陆</el-button>
-      </form>
-    </div> 
-    <div v-else class="login-box">
-      <h3>已登录..正在跳转</h3>
+  <div style="">
+    <div style="position: relative;height: 100px;">
+      <div style="position: absolute;left:280px;top: 30px;font-family: 'PingFang SC';font-weight:900 ;letter-spacing: 3px;font-size: x-large;text-shadow: 5px 5px 4px rgba(0,0,0,0.5);">
+        <router-link to="/home">席巴商城</router-link>
+      </div>
+      <div style="position: absolute;right: 10%;top:80%;">
+        <div v-if="!IsRegis" class="login-box">
+          <h2>用户登陆</h2>
+          <form>
+            <input type="text" v-model=name placeholder="用户名">
+            <input type="password" v-model=password placeholder="密码">
+            <div style="margin: 20px 0;"><div style="display: inline;"><a href="#" @click="IsRegis=true">去注册</a></div><div style="display: inline;margin-left: 100px;"><a href="#" @click="$alert('这都能忘？')">忘记密码</a></div></div>
+            <el-button type="submit" @click="login">登陆</el-button>
+          </form>
+        </div> 
+        <div v-else>
+          <RE @ChangeToLogin="IsRegis=false"></RE>
+        </div>
+      </div>
     </div>
+    <div class="fuck"></div>
   </div>
 </template>
 
 <script>
-const axios = require('axios')
+import axios from '@/utils'
+import RE from '@/components/ElRegis.vue'
 
 export default {
+  components:{
+    RE
+  },
   data() {
     return{
       name:null,
-      password:null
+      password:null,
+      IsRegis:false
     }
   },
   methods:{
@@ -64,6 +77,25 @@ export default {
       })
     }
   },
+  mounted(){
+    // 初始化时 检查一次本地和
+    //服务器已登录 但本地记录没登录，就同步个名字,状态改成登录
+    axios.get('/user/name')
+    .then(response=>{
+      if(response.data.code){
+        this.$store.state.IsLogin = true
+        this.$store.state.UserName = response.data.data
+      }else{
+        //this.$message.error("error:"+response.data.msg);
+        this.$store.state.IsLogin = false
+      }
+    })
+    .catch(error=>{
+      this.$message.error(error.data.msg);
+      console.log(error)
+      this.$store.state.IsLogin = false
+    })
+  },
   created(){
     console.log("login!!")
   },
@@ -79,7 +111,7 @@ export default {
 <style scoped>
 .login-box {
   width: 350px;
-  margin: 0 auto;
+
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -122,4 +154,23 @@ export default {
 .login-box button:hover {
   background-color: #0062cc
 } 
+
+.fuck{
+  background-image: url(../assets/B2.webp);
+  background-size:contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 540px;
+  background-color: rgb(106, 181, 1);
+}
+
+a:-webkit-any-link {
+    text-decoration: none;
+    color: rgba(0, 0, 0, 0.666);
+}
+
+a:hover{
+  color:black;
+}
 </style>
+

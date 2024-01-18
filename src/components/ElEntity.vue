@@ -25,7 +25,7 @@
 </template>
 
 <script>
-const axios = require('axios');
+import axios from '@/utils';
 
 export default {
   props: {

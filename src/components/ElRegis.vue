@@ -1,20 +1,18 @@
 <template>
-  <div>
     <div class="login-box">
       <h2>用户注册</h2>
       <form>
         <input type="text" v-model=name placeholder="用户名">
         <input type="password" v-model=password placeholder="密码">
         <input type="password" v-model=password2 placeholder="再输入一次">
-        <p><router-link to="/user/login">登录</router-link></p>
+        <p><a href="#" @click="$emit('ChangeToLogin')">去登录</a></p>
         <el-button type="submit" @click="regis">注册</el-button>
       </form>
     </div> 
-  </div>
 </template>
 
 <script>
-const axios = require('axios')
+import axios from '@/utils'
 
 export default {
   data() {

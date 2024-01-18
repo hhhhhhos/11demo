@@ -1,40 +1,11 @@
 <template>
   <div>
-    <h1 class="myborder">用户信息</h1>
-    <div v-loading="isloading1" class="myborder" style="margin: 30px 100px 20px 100px;padding: 10px;">
-      <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
-        <div v-if="!isupdateinfo" style="margin: 10px 90px;display: flex;">
-            <div v-if="index==='addresses'" style="display: flex;">
-              <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
-                <div>
-                  <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                    {{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
-                  </div>
-                </div>
-              </div>
-            <div v-else style="display: flex;">
-              <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data.replace(/T/g, ' '):data }}</div>
-            </div>
-          </div>
-        <div v-else style="margin: 5px 90px;display: flex;">
-          <div style="width: 100px;">{{ index }}</div>:
-          <div style="margin:0px 20px ;">
-            <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
-            <div v-else-if="index==='addresses'">
-              <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
-                {{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
-              </div>
-              <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
-            </div>
-            <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
-          </div>
-        </div>
-      </div>
-    </div>
-    <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
-    <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
-    <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
-    <el-button type="primary" @click="logout">退出登录</el-button>
+    <el-radio-group v-model="radio" style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in this.obj.addresses" :key="index2">
+      <el-radio :label="index2">
+        &nbsp;&nbsp;{{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+      </el-radio>
+    </el-radio-group>
+    <el-button @click="add_address" style="margin-left: 60px;display: block;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
     <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
       <el-form ref="form" :model="dialogdata" label-width="80px" >
         <el-form-item label="所在地区">
@@ -63,7 +34,6 @@
         <el-button type="primary" @click="confirm_change_address">确定</el-button>
       </span>
     </el-dialog>
-    <div style="height: 50px;"></div>
   </div>
 </template>
 
@@ -75,7 +45,7 @@ import ElA from '/src/components/ElAddress'
 export default {
   components: {
     ElA
-  },
+},
   data() {
     return{
       isloading1:true,
@@ -101,7 +71,8 @@ export default {
         "detail": "",
         "is_default":""
       },
-      dialogindex:1
+      dialogindex:1,
+      radio:0
     }
   },
   methods:{
@@ -127,7 +98,6 @@ export default {
         this.$message.error("获取失败："+error.data.msg)
       })
     },
-    // 点修改
     updateuserinfo(){
       if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
       if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
@@ -137,7 +107,6 @@ export default {
         if(response.data.code){
           this.$message.success(response.data.data)
           this.isloading1 = true
-          this.isupdateinfo = false
           this.getuserinfo()
         }
         else this.$message.error("修改失败："+response.data.msg)   
@@ -145,12 +114,6 @@ export default {
         console.log(error)
         this.$message.error("修改失败："+error)
       })
-    },
-    // 点取消
-    cancel(){
-      this.isupdateinfo=false
-      this.$message.error("已取消修改")
-      this.getuserinfo()
     },
     logout(){
       axios.get('/user/logout')
@@ -183,6 +146,7 @@ export default {
       this.obj.addresses[this.dialogindex-1] = Object.assign({},this.dialogdata) // 浅拷贝
       this.dialogVisible = false
       this.$message.success("已"+this.dialog_title+(this.dialogindex))
+      this.updateuserinfo()
     },
     add_address(){
       this.dialog_title = "新增地址"
@@ -213,6 +177,16 @@ export default {
     this.getuserinfo()
   },
   watch:{
+    // 守望者，未登陆不能访问本页
+    '$store.state.IsLogin':function(){
+      if(!this.$store.state.IsLogin)this.$router.push('/home')
+    },
+    isupdateinfo:function(newv){
+      if(!newv){
+        this.$message.error("已取消修改")
+        this.getuserinfo()
+      }
+    }
   }
 }
 </script>
