@@ -1,16 +1,9 @@
 <template>
   <div>
     <el-table
-      ref="myTable"
       v-loading=IsTableLoading
       :data="tableData"
-      style="width: 100%"
-      @selection-change="handleSelectionChange"
-      id="fuck">
-      <el-table-column
-        type="selection"
-        width="55">
-      </el-table-column>
+      style="width: 100%">
       <el-table-column
         v-for="(column, index) in this.columns"
         :key="index"
@@ -21,12 +14,7 @@
           <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
           <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
           <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
-             <el-button icon="el-icon-plus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]++"></el-button>
-                <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
-             <el-button icon="el-icon-minus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]>1?tableData[scope.$index]['buylist'][column.prop]--:tableData[scope.$index]['buylist'][column.prop]"></el-button>
-          </div>
-          <div v-else-if="column.label=='操作'">
-            <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
+            <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
           </div>
           <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
           <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
@@ -34,7 +22,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <h5 v-if="loading1">加载中</h5>
   </div>
 </template>
 
@@ -51,17 +38,10 @@ export default {
     return{
       tableData:[],
       currentPage:1,
-      page:{
-        "total": null,
-        "size": null,
-        "current": null,
-        "pages":null
-      },
-      PageSize:10,
+      TotalPage:null,
+      PageSize:10000,
       IsTableLoading:true,
-      val:[],
-      func:null,
-      loading1:false
+      val:[]
     }
   },
   methods:{
@@ -76,14 +56,7 @@ export default {
         if(response.data.code===0)this.$message.error(response.data.msg)
         else {
           this.tableData = response.data.data.records
-          this.page.total = response.data.data.total
-          this.page.size = response.data.data.size
-          this.page.current = response.data.data.current
-          this.page.pages = response.data.data.pages
-          this.init_selection() // 初始化商品选中
-          this.$nextTick(() => { // dom之后加载
-            this.func(); // 判断有无更多数据
-          });
+          this.TotalPage = response.data.data.total
           this.IsTableLoading = false
           this.$message.success("获取成功")
         }
@@ -102,19 +75,7 @@ export default {
       this.currentPage = val
       this.gettable()
     },
-    // 表格列选择
-    handleSelectionChange(val){
-      console.log(val)
-      this.val = val
-      // 遍历tableData数组，更新每个元素的is_selected属性
-      this.tableData.forEach((dataItem) => {
-        // 检查当前元素是否在选中的行数组`val`中
-        // 这里假设每个元素有唯一标识符，如id
-        dataItem.buylist.is_selected = val.some(selectedItem => selectedItem.buylist.id === dataItem.buylist.id)
-      });
-      console.log(this.tableData)
-      this.$emit('SelectRow',val)
-    },
+
     // 更新表格
     updatetable(){
       axios.post('/buylist/update',this.tableData)
@@ -156,18 +117,6 @@ export default {
         this.$message.error(error.data.msg);
         console.log(error)
       })
-    },
-    // 初始化购物车选中 在axios请求购物车时调用
-    init_selection() {
-      if (this.tableData.length > 0) {
-        this.tableData.forEach(RowData => {
-          if (RowData.buylist.is_selected) {
-            this.$nextTick(() => {
-              this.$refs.myTable.toggleRowSelection(RowData, true); // 第二个参数确保行被选中
-            });
-          }
-        });
-      }
     }
   },
   created(){
@@ -179,50 +128,17 @@ export default {
   },
   // 页面关闭或者刷新不会触发beforeDestroy
   beforeDestroy(){
-    this.updatetable()
-    window.removeEventListener('scroll',this.func)
+
   },
   mounted() {
     // 刷新或关闭网页触发
     window.onbeforeunload = () => {
         this.updatetable();
     } 
-    // 无限滚动功能监听
-    this.func = async () => {
-        var div = document.getElementById('fuck');
-        var rect = div.getBoundingClientRect();
-        console.log("1:"+window.pageYOffset) //当前y轴坐标
-        console.log("2:"+rect.bottom) // id元素底部y坐标-当前窗口y坐标 的值
-        console.log("3:"+window.innerHeight) // 当前窗口高度
-        if(rect.bottom<=window.innerHeight&&!this.loading1){
-          console.log("底部已进入视窗!!!")
-          // 如果还有数据
-          if(this.page.total>this.page.size * this.page.current){
-            this.loading1 = true
-            // 获取新表格前更新数据
-            this.updatetable()
-            setTimeout(async() => {
-              var oldtableData = JSON.parse(JSON.stringify(this.tableData))
-              this.PageSize +=5
-              const oldScrollPosition = window.pageYOffset
-              console.log("oldScrollPosition:"+oldScrollPosition)
-              await this.gettable()
-              this.tableData = oldtableData.concat(this.tableData)
-              setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
-            }, 2000);// 箭头函数，可以保留上下文this定义域
-          }else{
-            return
-          }
-          
-        }
-    }
-    window.addEventListener('scroll', this.func)
-
   },
   // 深层监听器
   watch:{
-    // 点加减时触发(好像废弃了)
-    /*
+    // 点加减时触发
     tableData:{
       deep: true,
       handler:function(){
@@ -234,11 +150,10 @@ export default {
           }
         }
       }
-      this.$emit('SelectRow',this.val)
+
       //console.log("watch!")
       }
     }
-    */
   }
 }
 </script>

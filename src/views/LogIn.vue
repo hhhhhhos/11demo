@@ -1,7 +1,7 @@
 <template>
   <div style="">
     <div style="position: relative;height: 100px;">
-      <div style="position: absolute;left:280px;top: 30px;font-family: 'PingFang SC';font-weight:900 ;letter-spacing: 3px;font-size: x-large;text-shadow: 5px 5px 4px rgba(0,0,0,0.5);">
+      <div style="position: absolute;left:15%;top: 30px;font-family: 'PingFang SC';font-weight:900 ;letter-spacing: 3px;font-size: x-large;text-shadow: 5px 5px 4px rgba(0,0,0,0.5);">
         <router-link to="/home">席巴商城</router-link>
       </div>
       <div style="position: absolute;right: 10%;top:80%;">

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>用户历史订单</h1>
+    <h1>历史订单</h1>
   </div>
 </template>
 

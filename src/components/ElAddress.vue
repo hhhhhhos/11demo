@@ -35,8 +35,13 @@ export default {
         },
     },
     mounted(){
-      if(this.PselectedOptions)this.selectedOptions = this.PselectedOptions
+      if(this.PselectedOptions)this.selectedOptions = JSON.parse(JSON.stringify(this.PselectedOptions))
       else this.selectedOptions = []
+    },
+    watch:{
+      PselectedOptions:function(){
+        this.selectedOptions = JSON.parse(JSON.stringify(this.PselectedOptions))
+      }
     }
 }
 </script>

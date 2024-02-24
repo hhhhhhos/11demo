@@ -7,9 +7,11 @@ import store from './store'
 
 Vue.use(ElementUI);
 
-new Vue({
+const vue = new Vue({
   router,
   store,
   el: '#app',
   render: h => h(App),
 });
+
+export default vue

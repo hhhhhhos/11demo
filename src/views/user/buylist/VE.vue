@@ -1,12 +1,12 @@
 <template>
   <div>
     <h1>用户购物车</h1>
-    <div style="margin: 50px 100px;" class="myborder">
+    <div style="margin: 50px 100px 150px 100px;" class="myborder">
       <ElTable_buylist @SelectRow="selectrow" :columns="columns1" :geturl="geturl"/>  
     </div>
-    <div style="margin: 20px 100px 70px 100px;padding: 10px 0;display: flex;justify-content: right;" class="myborder">
-      <div style="margin: 8px 20px 0 200px;">合计：¥ {{ TotalPrice }}</div>
-      <el-button type="danger" round style="margin:0 100px 0 200px;" @click="gotoresult">结算</el-button>
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; margin:  0; padding: 10px 0; display: flex; justify-content: right; background-color: rgb(248, 248, 248); z-index: 1000;" class="myborder2">
+      <div style="margin: 8px 20px 0 200px;font-weight:bolder;font-size: larger;">合计：<span style="color:rgba(128, 128, 128, 0.844);">¥</span> <span style="color: rgba(255,80,0);">{{ TotalPrice }}</span></div>
+      <el-button type="danger" round style="margin:0 100px 0 50px;" @click="gotoresult">结算</el-button>
     </div>
   </div>
 </template>
@@ -21,7 +21,7 @@ export default {
   data() {
     return{
       columns1 : [
-        { prop: 'id', label: 'ID', width: '100' },
+        //{ prop: 'id', label: 'ID', width: '100' },
         //{ prop: 'user_id', label: '用户ID', width: '100' },
         //{ prop: 'product_id', label: '商品ID', width: '100' },
         { prop: 'photo', label: '商品图', width: '180' },
@@ -43,6 +43,7 @@ export default {
       this.Datas = datas
       datas.forEach(data=>{
         this.TotalPrice += data.product.price*data.buylist.product_num
+        this.TotalPrice = parseFloat(this.TotalPrice.toFixed(2));
       })
     },
     // 跳转结算页
@@ -56,6 +57,10 @@ export default {
 </script>
 
 <style scoped>
-
+.myborder2 {
+  border-radius: 5px;
+  border: 5px solid rgb(248, 248, 248);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+}
 </style>
 

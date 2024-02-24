@@ -1,15 +1,21 @@
 <template>
-  <div>
-    <el-radio-group v-model="radio" style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in this.obj.addresses" :key="index2">
+  <div v-loading="isloading1">
+    <el-radio-group v-model="radio" style="margin:10px 20px 20px 10px;display: block;" v-for="(data2,index2) in this.obj.addresses" :key="index2">
       <el-radio :label="index2">
-        &nbsp;&nbsp;{{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+        &nbsp;&nbsp;{{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} 
+        <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">
+          默认
+        </div>
+        <el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button>
+        <el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
       </el-radio>
     </el-radio-group>
     <el-button @click="add_address" style="margin-left: 60px;display: block;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
+    <!-- 弹出框 -->
     <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
       <el-form ref="form" :model="dialogdata" label-width="80px" >
         <el-form-item label="所在地区">
-          <ElA style="float:left;" :PselectedOptions="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
+          <ElA style="float:left;" :PselectedOptions="dialogdata.info_code" @info="info=>{dialogdata.info=JSON.parse(JSON.stringify(info))}" @info_code="info_code=>{dialogdata.info_code=JSON.parse(JSON.stringify(info_code))}"></ElA>
         </el-form-item>
         <el-form-item label="详细地址">
           <el-input v-model="dialogdata.detail"></el-input>
@@ -38,6 +44,7 @@
 </template>
 
 <script>
+// 主要用在buylist
 import axios from '@/utils'
 
 import ElA from '/src/components/ElAddress'
@@ -66,6 +73,7 @@ export default {
       dialogdata:
       {
         "info": "",
+        "info_code":"",
         "name": "",
         "phone": "",
         "detail": "",
@@ -79,20 +87,25 @@ export default {
     getuserinfo(){
       axios.get('/user/info')
       .then(response=>{
-        if(response.data.code)this.$message.success("获取成功"),this.isloading1=false
-        else this.$message.error("获取失败："+response.data.msg)
-        this.obj = response.data.data
-        if(this.obj.addresses===null) this.obj.addresses=[]
-        else{
-          // 默认地址置顶
-          for(var i=0;i<this.obj.addresses.length;i++){
-            if(this.obj.addresses[i].is_default){
-              const temp = this.obj.addresses[0]
-              this.obj.addresses[0] = this.obj.addresses[i]
-              this.obj.addresses[i] = temp
+        if(response.data.code){
+          this.$message.success("获取成功"),this.isloading1=false
+          this.obj = response.data.data
+          if(this.obj.addresses===null) this.obj.addresses=[]
+          else{
+            // 默认地址置顶
+            for(var i=0;i<this.obj.addresses.length;i++){
+              if(this.obj.addresses[i].is_default){
+                const temp = {...this.obj.addresses[0]}// 深拷贝
+                this.obj.addresses[0] = {...this.obj.addresses[i]}// 深拷贝
+                this.obj.addresses[i] = {...temp}// 深拷贝
+              }
             }
+            // 传给buylist_result address
+            this.$emit("address",this.obj.addresses)
+            this.$emit("radio",this.radio)
           }
         }
+        else this.$message.error("获取失败："+response.data.msg)
       }).catch(error=>{
         console.log(error)
         this.$message.error("获取失败："+error.data.msg)
@@ -135,7 +148,7 @@ export default {
     change_address(index2,data2){
       this.dialog_title = "修改地址"
       this.dialogindex = index2+1
-      this.dialogdata = Object.assign({},data2) // 浅拷贝
+      this.dialogdata = {...data2} // 深拷贝
       this.dialogVisible = true
     },
     // 点击展开框的确认
@@ -143,7 +156,7 @@ export default {
       if(this.dialogdata.is_default){
         this.obj.addresses.forEach(address=>address.is_default = false)
       }
-      this.obj.addresses[this.dialogindex-1] = Object.assign({},this.dialogdata) // 浅拷贝
+      this.obj.addresses[this.dialogindex-1] = {...this.dialogdata} // 深拷贝
       this.dialogVisible = false
       this.$message.success("已"+this.dialog_title+(this.dialogindex))
       this.updateuserinfo()
@@ -165,6 +178,7 @@ export default {
             type: 'success',
             message: '删除成功!'
           });
+          this.updateuserinfo()
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -186,6 +200,10 @@ export default {
         this.$message.error("已取消修改")
         this.getuserinfo()
       }
+    },
+    radio:function(){
+      this.$emit("radio",this.radio)
+      this.$emit("address",this.obj.addresses)
     }
   }
 }

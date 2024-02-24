@@ -13,7 +13,7 @@
                 </div>
               </div>
             <div v-else style="display: flex;">
-              <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data.replace(/T/g, ' '):data }}</div>
+              <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data:data }}</div>
             </div>
           </div>
         <div v-else style="margin: 5px 90px;display: flex;">
