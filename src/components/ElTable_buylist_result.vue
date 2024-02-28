@@ -3,7 +3,8 @@
     <el-table
       v-loading=IsTableLoading
       :data="tableData"
-      style="width: 100%">
+      style="width: 100%"
+      :show-header="showHeader">
       <el-table-column
         v-for="(column, index) in this.columns"
         :key="index"
@@ -32,7 +33,10 @@ export default {
   props: {
     columns:Array,
     geturl:String,
-    Datas:Array
+    Datas:Array,
+    showHeader:{
+      default:true
+    }
   },
   data() {
     return{

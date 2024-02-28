@@ -49,8 +49,11 @@ export default {
     // 跳转结算页
     gotoresult(){
       console.log(this.Datas)
-      if(this.TotalPrice===0)this.$message.error("未选择商品")
-      else this.$router.push({name:"userbuylist_result",params:{datas:this.Datas}})
+      // 检查有没有卖完的商品
+      if(this.Datas.some(data=>data.product.num===0))return this.$message.error("不能选择卖完的商品")
+      
+      if(this.TotalPrice===0)return this.$message.error("未选择商品")
+      this.$router.push({name:"userbuylist_result",params:{datas:this.Datas}})
     }
   }
 }

@@ -6,7 +6,8 @@
       :data="tableData"
       style="width: 100%"
       @selection-change="handleSelectionChange"
-      id="fuck">
+      id="fuck"
+      >
       <el-table-column
         type="selection"
         width="55">
@@ -17,20 +18,35 @@
         :prop="column.prop"
         :label="column.label"
         :width="column.width">
-        <template slot-scope="scope">
-          <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
-          <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
-          <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
-             <el-button icon="el-icon-plus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]++"></el-button>
-                <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
-             <el-button icon="el-icon-minus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]>1?tableData[scope.$index]['buylist'][column.prop]--:tableData[scope.$index]['buylist'][column.prop]"></el-button>
+        <template slot-scope="scope" >
+          <div v-if="tableData[scope.$index]['product'].num!==0">
+            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
+            <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
+            <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
+                <el-button icon="el-icon-plus" circle size="mini" @click="tableData[scope.$index]['product'].num>tableData[scope.$index]['buylist'][column.prop]?tableData[scope.$index]['buylist'][column.prop]++:overnum(tableData[scope.$index]['buylist'][column.prop])"></el-button>
+                  <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
+                <el-button icon="el-icon-minus" circle size="mini" @click="tableData[scope.$index]['buylist'][column.prop]>1?tableData[scope.$index]['buylist'][column.prop]--:tableData[scope.$index]['buylist'][column.prop]"></el-button>
+            </div>
+            <div v-else-if="column.label=='操作'">
+              <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
+            </div>
+            <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
+            <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
+            <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
           </div>
-          <div v-else-if="column.label=='操作'">
-            <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
+          <div v-else>
+            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
+            <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
+            <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
+                <p style="color: darkgray;">商品卖完啦</p>
+            </div>
+            <div v-else-if="column.label=='操作'">
+              <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
+            </div>
+            <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
+            <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
+            <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
           </div>
-          <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
-          <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
-          <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
         </template>
       </el-table-column>
     </el-table>
@@ -168,6 +184,11 @@ export default {
           }
         });
       }
+    },
+    // 超库存
+    overnum(val){
+      this.$message.error("商品库存不足")
+      return val
     }
   },
   created(){

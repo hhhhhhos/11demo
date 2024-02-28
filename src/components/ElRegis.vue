@@ -29,14 +29,14 @@ export default {
       if(this.password2===null)return this.$message.error("请再输入一次")
       if(this.password!==this.password2)return this.$message.error("两次密码不一致")
 
-    axios.post('regis',{
+    axios.post('/user/regis',{
         name:this.name,
         password:this.password
       }).then(response=>{
         if(response.data.code===0)this.$message.error(response.data.msg)
         else {
           this.$message.success(response.data.data)
-          this.$router.push('/user/login')
+          this.$emit('ChangeToLogin')
         }
         console.log(response)
       }).catch(error=>{

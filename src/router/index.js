@@ -95,6 +95,13 @@ const routes = [
     meta: { title: '席巴商城 -用户登录' },
 
   },
+  {
+    path: '/gotopay',
+    name: 'gotopay',
+    component: () => import(/* webpackChunkName: "about3" */ '../views/gotopay.vue'),
+    meta: { title: '席巴商城 -跳转支付' },
+
+  }
 ]
 
 const router = new VueRouter({

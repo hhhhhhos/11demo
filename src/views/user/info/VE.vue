@@ -8,7 +8,7 @@
               <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
                 <div>
                   <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                    {{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
+                    {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
                   </div>
                 </div>
               </div>
@@ -19,10 +19,10 @@
         <div v-else style="margin: 5px 90px;display: flex;">
           <div style="width: 100px;">{{ index }}</div>:
           <div style="margin:0px 20px ;">
-            <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+            <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
             <div v-else-if="index==='addresses'">
               <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
-                {{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+                {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
               </div>
               <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
             </div>
@@ -38,7 +38,7 @@
     <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
       <el-form ref="form" :model="dialogdata" label-width="80px" >
         <el-form-item label="所在地区">
-          <ElA style="float:left;" :PselectedOptions="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
+          <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
         </el-form-item>
         <el-form-item label="详细地址">
           <el-input v-model="dialogdata.detail"></el-input>
@@ -88,7 +88,8 @@ export default {
         "addresses": null,
         "phone": null,
         "create_time": Date,
-        "password": null
+        "password": null,
+        "money":null
       },
       isupdateinfo:false,
       dialogVisible:false,
@@ -129,9 +130,9 @@ export default {
     },
     // 点修改
     updateuserinfo(){
-      if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
-      if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
-      if (!(/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.obj.phone)))return this.$message.error("电话不合法")
+      //if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
+      //if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
+      //if (!(/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.obj.phone)))return this.$message.error("电话不合法")
       axios.put('/user/update',this.obj)
       .then(response=>{
         if(response.data.code){
@@ -180,9 +181,16 @@ export default {
       if(this.dialogdata.is_default){
         this.obj.addresses.forEach(address=>address.is_default = false)
       }
+      //this.dialogdata.info_code = 
+      //this.$refs.ELA.selectedOptions
       this.obj.addresses[this.dialogindex-1] = Object.assign({},this.dialogdata) // 浅拷贝
       this.dialogVisible = false
-      this.$message.success("已"+this.dialog_title+(this.dialogindex))
+      //if(true){
+        this.$message.success("已"+this.dialog_title+(this.dialogindex))
+      //}else{
+
+      //}
+        
     },
     add_address(){
       this.dialog_title = "新增地址"

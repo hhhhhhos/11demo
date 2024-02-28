@@ -2,12 +2,7 @@
   <div v-loading="isloading1">
     <el-radio-group v-model="radio" style="margin:10px 20px 20px 10px;display: block;" v-for="(data2,index2) in this.obj.addresses" :key="index2">
       <el-radio :label="index2">
-        &nbsp;&nbsp;{{ index2+1 }}. | 所在地区：{{ data2.info[0] }} / {{ data2.info[1] }} / {{ data2.info[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} 
-        <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">
-          默认
-        </div>
-        <el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button>
-        <el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+        {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
       </el-radio>
     </el-radio-group>
     <el-button @click="add_address" style="margin-left: 60px;display: block;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
@@ -112,9 +107,9 @@ export default {
       })
     },
     updateuserinfo(){
-      if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
-      if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
-      if (!(/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.obj.phone)))return this.$message.error("电话不合法")
+      //if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
+      //if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
+      //if (!(/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.obj.phone)))return this.$message.error("电话不合法")
       axios.put('/user/update',this.obj)
       .then(response=>{
         if(response.data.code){
@@ -157,8 +152,8 @@ export default {
         this.obj.addresses.forEach(address=>address.is_default = false)
       }
       this.obj.addresses[this.dialogindex-1] = {...this.dialogdata} // 深拷贝
+      //this.$message.success("已"+this.dialog_title+(this.dialogindex))
       this.dialogVisible = false
-      this.$message.success("已"+this.dialog_title+(this.dialogindex))
       this.updateuserinfo()
     },
     add_address(){
