@@ -4,7 +4,8 @@
       :options="options"
       ref="cascaderAddr"
       v-model="selectedOptions"
-      @change="handleChange">
+      @change="handleChange"
+      >
     </el-cascader>
   </div>
 </template>
@@ -46,3 +47,20 @@ export default {
     }
 }
 </script>
+
+<style>
+.el-cascader-panel {
+  max-width: 100vw; /* 限制最大宽度为视口宽度 */
+  overflow-x: auto; /* 当需要时出现水平滚动条 */
+  overflow-y: visible; /* 允许垂直溢出 */
+}
+
+
+.el-cascader-menu {
+  flex: none; /* 使每个菜单项能够独立排列 */
+  display: inline-block; /* 级联菜单横向排列 */
+  float: none !important; /* 取消可能的浮动效果 */
+  height: auto !important; /* 取消可能的绝对高度，允许自适应 */
+  min-width: 0 !important; /* 确保菜单宽度可以根据内容缩小 */
+}
+</style>

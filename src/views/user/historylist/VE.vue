@@ -1,18 +1,33 @@
 <template>
   <div>
-    <h1>历史订单</h1>
-    <div style="margin: 50px 100px 150px 100px;" class="myborder">
+    
+    <div v-if="!this.$store.state.IsMobile">
       <ElTable1  :columns="columns1" :geturl="geturl"/>  
     </div>
+
+    <div v-else>
+      <List
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+      >
+        <Cell v-for="item in list" :key="item" :title="item" />
+      </List>
+    </div>
+
   </div>
 </template>
 
 <script>
 import ElTable1 from '/src/components/ElTable1'
+import { List,Cell } from 'vant';
 
 export default {
   components: {
-    ElTable1
+    ElTable1,
+    List,
+    Cell
   },
   data() {
     return{

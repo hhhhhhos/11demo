@@ -109,7 +109,7 @@ export default {
     getuserinfo(){
       axios.get('/user/info')
       .then(response=>{
-        if(response.data.code)this.$message.success("获取成功"),this.isloading1=false
+        if(response.data.code)this.isloading1=false
         else this.$message.error("获取失败："+response.data.msg)
         this.obj = response.data.data
         if(this.obj.addresses===null) this.obj.addresses=[]

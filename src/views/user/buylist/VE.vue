@@ -4,7 +4,7 @@
     <div style="margin: 50px 100px 150px 100px;" class="myborder">
       <ElTable_buylist @SelectRow="selectrow" :columns="columns1" :geturl="geturl"/>  
     </div>
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; margin:  0; padding: 10px 0; display: flex; justify-content: right; background-color: rgb(248, 248, 248); z-index: 1000;" class="myborder2">
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; margin:  0; padding: 10px 0; display: flex; justify-content: right; background-color: white; z-index: 1000;" class="myborder2">
       <div style="margin: 8px 20px 0 200px;font-weight:bolder;font-size: larger;">合计：<span style="color:rgba(128, 128, 128, 0.844);">¥</span> <span style="color: rgba(255,80,0);">{{ TotalPrice }}</span></div>
       <el-button type="danger" round style="margin:0 100px 0 50px;" @click="gotoresult">结算</el-button>
     </div>
@@ -53,6 +53,9 @@ export default {
       if(this.Datas.some(data=>data.product.num===0))return this.$message.error("不能选择卖完的商品")
       
       if(this.TotalPrice===0)return this.$message.error("未选择商品")
+
+      console.log("跳转结算页")
+      console.log(this.Datas)
       this.$router.push({name:"userbuylist_result",params:{datas:this.Datas}})
     }
   }
@@ -62,7 +65,7 @@ export default {
 <style scoped>
 .myborder2 {
   border-radius: 5px;
-  border: 5px solid rgb(248, 248, 248);
+  border: 5px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
 }
 </style>

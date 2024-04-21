@@ -1,28 +1,58 @@
 <template>
   <div>
-    <el-table
-      v-loading=IsTableLoading
-      :data="tableData"
-      style="width: 100%"
-      :show-header="showHeader">
-      <el-table-column
-        v-for="(column, index) in this.columns"
-        :key="index"
-        :prop="column.prop"
-        :label="column.label"
-        :width="column.width">
-        <template slot-scope="scope">
-          <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
-          <div v-else-if="column.label=='商品图'"><img :src="require(`@/assets/${tableData[scope.$index]['product'][column.prop]}.jpg`)" style="height:100px;object-fit:contain;"></div>
-          <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
-            <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
-          </div>
-          <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
-          <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
-          <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-if="!this.$store.state.IsMobile">
+      <el-table
+        v-loading=IsTableLoading
+        :data="tableData"
+        style="width: 100%"
+        :show-header="showHeader">
+        <el-table-column
+          v-for="(column, index) in this.columns"
+          :key="index"
+          :prop="column.prop"
+          :label="column.label"
+          :width="column.width">
+          <template slot-scope="scope">
+            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
+            <div v-else-if="column.label=='商品图'"><img :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:contain;"></div>
+            <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
+              <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
+            </div>
+            <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
+            <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
+            <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <div v-else>
+      <el-table
+        v-loading=IsTableLoading
+        :data="tableData"
+        style="width: 100%"
+        :show-header="showHeader">
+        <el-table-column
+          v-for="(column, index) in this.columns"
+          :key="index"
+          :prop="column.prop"
+          :label="column.label"
+          :width="column.width"
+          :align="column.align">
+          <template slot-scope="scope">
+            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
+            <div v-else-if="column.label=='商品图'"><img :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:contain;"></div>
+            <div v-else-if="column.label=='数量'" style="text-align: center;" >
+              {{ tableData[scope.$index].buylist[column.prop] }}
+            </div>
+            <div v-else-if="column.label=='ID'">{{ tableData[scope.$index]['buylist'][column.prop] }}</div>
+            <div v-else-if="column.label=='价格'" style="color: rgba(255,80,0);font-weight: bolder;font-size:medium;">{{ tableData[scope.$index]['product'][column.prop] }}</div>
+            <div v-else>{{ tableData[scope.$index]['product'][column.prop] }}</div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
   </div>
 </template>
 
@@ -49,6 +79,16 @@ export default {
     }
   },
   methods:{
+    // 图片不存在 就换成默认图
+    getImagePath(imageName) {
+      // 尝试动态引入图片，如果失败，则返回默认图片
+      try {
+        return require(`@/assets/${imageName}.webp`);
+      } catch {
+        // 图片加载失败时，返回默认图片路径
+        return require('@/assets/deletedproduct.webp');
+      }
+    },
     // 拿表
     gettable(){
       axios.get(this.geturl,{
@@ -62,7 +102,7 @@ export default {
           this.tableData = response.data.data.records
           this.TotalPage = response.data.data.total
           this.IsTableLoading = false
-          this.$message.success("获取成功")
+          
         }
       }).catch(error=>{
         this.$message.error(error.data.msg)

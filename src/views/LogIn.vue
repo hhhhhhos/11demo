@@ -1,25 +1,60 @@
 <template>
-  <div style="">
-    <div style="position: relative;height: 100px;">
-      <div style="position: absolute;left:15%;top: 30px;font-family: 'PingFang SC';font-weight:900 ;letter-spacing: 3px;font-size: x-large;text-shadow: 5px 5px 4px rgba(0,0,0,0.5);">
-        <router-link to="/home">席巴商城</router-link>
-      </div>
-      <div style="position: absolute;right: 10%;top:80%;">
-        <div v-if="!IsRegis" class="login-box">
-          <h2>用户登陆</h2>
-          <form>
-            <input type="text" v-model=name placeholder="用户名">
-            <input type="password" v-model=password placeholder="密码">
-            <div style="margin: 20px 0;"><div style="display: inline;"><a href="#" @click="IsRegis=true">去注册</a></div><div style="display: inline;margin-left: 100px;"><a href="#" @click="$alert('这都能忘？')">忘记密码</a></div></div>
-            <el-button type="submit" @click="login">登陆</el-button>
-          </form>
-        </div> 
-        <div v-else>
-          <RE @ChangeToLogin="IsRegis=false"></RE>
+  <div>
+
+    <div v-if="!this.$store.state.IsMobile">
+      <div :style="'position: relative;height:'+ this.$store.state.CURRENT_HEIGHT*0.2 +'px;'">
+        <div :style="'position: absolute;left:13%;top: '+this.$store.state.CURRENT_HEIGHT*0.07+'px;font-family: PingFang SC;font-weight:900 ;letter-spacing: 3px;font-size: '+this.$store.state.CURRENT_HEIGHT*0.04+'px;text-shadow: 5px 5px 4px rgba(0,0,0,0.5);'">
+          <router-link to="/home">席巴商城</router-link>
+        </div>
+        <!-- 登录页 -->
+        <div :style="'position: absolute;right: '+this.$store.state.CURRENT_HEIGHT*0.2+'px;top:'+this.$store.state.CURRENT_HEIGHT*0.2+'px;'">
+          <div v-if="!IsRegis" class="login-box">
+            <h2>用户登录</h2>
+            <form>
+              <input type="text" v-model=name placeholder="用户名">
+              <input type="password" v-model=password placeholder="密码">
+              <div style="margin: 20px 0;"><div style="display: inline;"><a href="#" @click="IsRegis=true">去注册</a></div><div style="display: inline;margin-left: 100px;"><a href="#" @click="$alert('这都能忘？')">忘记密码</a></div></div>
+              <el-button type="submit" @click="login">登陆</el-button>
+            </form>
+          </div> 
+          <div v-else>
+            <RE @ChangeToLogin="IsRegis=false"></RE>
+          </div>
         </div>
       </div>
+      <div class="fuck" :style="'height:'+ this.$store.state.CURRENT_HEIGHT*0.6 +'px;'"></div>
     </div>
-    <div class="fuck"></div>
+
+    <div v-else style="display: flex;justify-content: center;align-items: center;">
+
+      <div>
+          <div v-if="!IsRegis" class="login-box mobile">
+            <h2>用户登录</h2>
+            <form>
+              <input type="text" v-model=name placeholder="用户名">
+              <input type="password" v-model=password placeholder="密码">
+              <div style="margin: 20px 0;">
+                <div style="display: inline;">
+                  <a href="#" @click="IsRegis=true">去注册</a>
+                </div>
+                <div style="display: inline;margin-left: 20px;">
+                  <a href="#" @click="$alert('这都能忘？')">忘记密码</a>
+                </div>
+              </div>
+              <el-button type="submit" @click="login">登录</el-button>
+            </form>
+          </div> 
+          <div v-else>
+            <RE @ChangeToLogin="IsRegis=false"></RE>
+          </div>
+      </div>
+
+      <div style="height: 200px;background-color: aqua;">
+      </div>
+
+    </div>
+
+
   </div>
 </template>
 
@@ -27,14 +62,15 @@
 import axios from '@/utils'
 import RE from '@/components/ElRegis.vue'
 
+
 export default {
   components:{
     RE
   },
   data() {
     return{
-      name:null,
-      password:null,
+      name:'visitor',
+      password:111111,
       IsRegis:false
     }
   },
@@ -119,6 +155,11 @@ export default {
   margin-top: 100px;
 }
 
+.mobile {
+  box-shadow: 0 0 0;
+  border-radius: 0;
+}
+
 .login-box h2 {
   text-align: center;
   font-size: 26px;
@@ -160,7 +201,6 @@ export default {
   background-size:contain;
   background-position: center;
   background-repeat: no-repeat;
-  height: 540px;
   background-color: rgb(106, 181, 1);
 }
 

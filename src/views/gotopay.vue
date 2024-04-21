@@ -23,7 +23,7 @@ export default {
   },
   mounted(){
     // 显不显示跳转
-    if(sessionStorage.getItem('StopRedirectPay')==='false'){
+    if(sessionStorage.getItem('StopRedirectPay')==='false'|| sessionStorage.getItem('StopRedirectPay')===null){
       this.show = true
     }else{
       this.show = false
@@ -35,12 +35,12 @@ export default {
     const num = this.$route.query.num;
     const name = this.$route.query.name;
 
-    if(sessionStorage.getItem('StopRedirectPay')==='false'){
+    if(this.show){
       // 设置延时跳转
       setTimeout(() => {
         // 防止重复跳转
         sessionStorage.setItem('StopRedirectPay',"true")
-        window.location.href = `http://localhost:8002/test/pay?outTradeNo=${id}&totalAmount=${money}&subject="${name}等${num}件商品"`;
+        window.location.href = `${process.env.VUE_APP_API_URL}test/pay?outTradeNo=${id}&totalAmount=${money}&subject="${name}等${num}件商品"`;
         }, 500); // 500毫秒后跳转
     }else{
       this.$message("勿重复跳转，请从订单页重新发起")

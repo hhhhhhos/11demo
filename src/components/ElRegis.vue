@@ -1,5 +1,5 @@
 <template>
-    <div class="login-box">
+    <div v-if="!this.$store.state.IsMobile" class="login-box">
       <h2>用户注册</h2>
       <form>
         <input type="text" v-model=name placeholder="用户名">
@@ -9,6 +9,18 @@
         <el-button type="submit" @click="regis">注册</el-button>
       </form>
     </div> 
+
+    <div v-else class="login-box mobile">
+      <h2>用户注册</h2>
+      <form>
+        <input type="text" v-model=name placeholder="用户名">
+        <input type="password" v-model=password placeholder="密码">
+        <input type="password" v-model=password2 placeholder="再输入一次">
+        <p><a href="#" @click="$emit('ChangeToLogin')">去登录</a></p>
+        <el-button type="submit" @click="regis">注册</el-button>
+      </form>
+    </div> 
+
 </template>
 
 <script>
@@ -60,6 +72,11 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   margin-top: 100px;
+}
+
+.mobile {
+  box-shadow: 0 0 0;
+  border-radius: 0;
 }
 
 .login-box h2 {

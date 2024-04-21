@@ -1,5 +1,7 @@
 <template>
   <div>
+    
+    <div v-if="!this.$store.state.IsMobile">
     <h1>购物车结算</h1>
     <div style="margin: 50px 100px;" class="myborder">
       <h3 style="text-align:left;margin-left:30px;">确认收货信息</h3> 
@@ -24,7 +26,7 @@
     </div>
 
     <!-- 弹出框 -->
-    <el-dialog :title="this.dialog_title" :visible.sync="dialogVisible" width="20%" center>
+    <el-dialog :title="this.dialog_title" :visible.sync="dialogVisible" width="300px" center>
       <div style="display: flex; justify-content: center; align-items: center;">
         <el-radio v-model="radio2" label="1">余额(剩余:{{ this.obj.money }})</el-radio>
         <el-radio v-model="radio2" label="2">支付宝</el-radio>
@@ -36,7 +38,50 @@
     </el-dialog>
 
     
+    </div>
+
+    <div v-else style="background-color:rgba(247,248,250);">
+
+      <div style="margin: 10px;padding: 10px;background-color: white;" class="myborder">
+        <h3 style="text-align:left;margin: 0;">确认收货信息</h3> 
+        <E2 ref="address" style="text-align:left;max-height: 23vh;overflow-x: scroll;margin-top: 20px;" @address="address_change" @radio="radio=>radio_change(radio)"></E2>
+      </div>
+
+      <div style="margin: 10px;padding: 10px;background-color: white;" class="myborder">
+        <h3 style="text-align:left;margin:0;">确认订单信息</h3> 
+        <div style="margin: 0 ;">
+          <ET1 :Datas="Datas" :columns="columns2" ></ET1>
+        </div>
+      </div>
+
+
+      <div style="position: fixed; bottom: 0; left: 0; right: 0; margin:  0; padding: 10px 0; display: flex; justify-content:  space-between; background-color: white; z-index: 1000;" class="myborder2">
+        <div style="margin: 0;font-weight:bolder;font-size: larger;">
+          <div style="text-align: left;margin-left: 20px;">
+            <div style="margin-top: 4px;color:red;font-size: larger;font-weight: bold;"><span style="margin:5px 3px 0 0;font-size: medium;">¥</span>{{ TotalPrice }}</div>
+          </div>
+        </div>
+        <el-button type="danger" round style="margin-right: 15px;" @click="gotopay">提交订单</el-button>
+      </div>
+
+      <!-- 弹出框 -->
+      <el-dialog :title="this.dialog_title" :visible.sync="dialogVisible" width="300px" center>
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <el-radio v-model="radio2" label="1">余额(剩余:{{ this.obj.money }})</el-radio>
+          <el-radio v-model="radio2" label="2">支付宝</el-radio>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="final_pay">确定</el-button>
+        </span>
+      </el-dialog>
+
+
+
+    </div>
+
   </div>
+
 </template>
 
 <script>
@@ -61,6 +106,14 @@ export default {
         { prop: 'product_num', label: '购买数量' , width: '120' },
         { prop: 'price', label: '价格', width: '100' },
         { prop: 'create_time', label: '创建时间', width: '180' },
+      ],
+      columns2 : [
+        //{ prop: 'id', label: 'ID', width: '100' },
+        //{ prop: 'user_id', label: '用户ID', width: '100' },
+        //{ prop: 'product_id', label: '商品ID', width: '100' },
+        { prop: 'photo', label: '商品图', width: '100' },
+        { prop: 'product_num', label: '数量' ,align:'center' },
+        { prop: 'price', label: '价格', width: '120' ,align:'center'},
       ],
       TotalPrice:0,
       radio:0,
@@ -87,6 +140,12 @@ export default {
         "create_time": Date,
         "password": null,
         "money":null
+      },
+      alipay:{
+        "id":null,
+        "money":null,
+        "num":null,
+        "name":null
       }
       //ids:null
     }
@@ -110,20 +169,46 @@ export default {
     },
     // 点确定支付
     async final_pay(){
-      console.log(this.radio)
-      // 1.创建历史订单信息 
+      console.log(this.radio2)
+      // 如果创建历史订单信息成功
       if(await this.build_historylist()){
-        this.$message.success("订单创建成功")
-        setTimeout(() => {this.$router.push('/user/historylist')}, 1000);
+        // 判断跳转余额支付还是支付宝支付 this.radio2=1 余额 2支付宝
+        if(this.radio2==="1"){
+          // 余额支付
+          await this.moneypay(this.alipay.id)
+          // 无论支付·结果 都跳转历史交易页
+          setTimeout(() => {this.$router.push('/user/historylist')}, 1000);
+        }else{
+          // 支付宝支付
+          console.log("支付宝支付")
+          // 不拦截支付
+          sessionStorage.setItem('StopRedirectPay',"false")
+          setTimeout(() => this.$router.push(`/alipay_account?id=${this.alipay.id}&money=${this.alipay.money}&num=${this.alipay.num}&name=${this.alipay.name}`), 1000);
+        }
       }
       else{
-        this.$message.error("订单创建失败")
+        //this.$message.error("订单创建失败")
       }
       this.dialogVisible = false
     },
-    // 1.创建历史订单信息
+    // 创建历史订单信息
     async build_historylist(){
       var result = false
+      
+      // #region 先判断满不满足建单条件
+      if(this.TotalPrice <= 0){
+          this.$message.error("总金额异常, 不能为0")
+          return result
+      }
+       // 如果选余额支付
+      if(this.radio2==="1"){
+        if(this.obj.money < this.TotalPrice){
+          this.$message.error("余额不足，无法支付")
+          return result
+        }
+      }
+      // #endregion
+
       // .....待完善
       // 根据ids删除 请求范例
       await axios.post('/user/build/order',{
@@ -133,6 +218,7 @@ export default {
       .then(response=>{
         if(response.data.code){
           this.$message.success(response.data.data)
+          this.alipay = response.data.map.alipay
           //setTimeout(() => {window.location.reload()}, 500);
           result =  true
         }
@@ -148,34 +234,6 @@ export default {
       })
       // 先去后端验证吧 判断是余额支付 还是支付宝 成功后再在后端创建订单
       return result
-    },
-    // 2.删除购物车 //后端删除了 废弃了
-    async deletebyids(){
-      var result = false
-      var D_ids = []
-      this.Datas.forEach(Data=>{
-        D_ids.push(Data.buylist.id)
-      })
-      // 根据ids删除 请求范例
-      await axios.delete('/buylist/deletebyids',{data: D_ids})
-      .then(response=>{
-        if(response.data.code){
-          this.$message.success(response.data.data)
-          //setTimeout(() => {window.location.reload()}, 500);
-          result =  true
-        }
-        else {
-          this.$message.error(response.data.msg)
-          console.log(response)
-          result =  false
-        }
-      }).catch(error=>{
-        this.$message.error(error.data.msg);
-        console.log(error)
-        result =  false
-      })
-        console.log("result:"+result)
-       return result
     },
     async getuserinfo(){
       await axios.get('/user/info')
@@ -200,6 +258,29 @@ export default {
         this.$message.error("获取失败："+error.data.msg)
         return this.obj
       })
+    },
+    // 余额支付
+    async moneypay(order_id){
+      console.log("余额支付")
+      var result = false
+      await axios.post(`/order/payonmoney?order_id=${order_id}`)
+      .then(response=>{
+        if(response.data.code){
+          this.$message.success(response.data.data)
+          //setTimeout(() => {window.location.reload()}, 500);
+          result =  true
+        }
+        else {
+          this.$message.error(response.data.msg)
+          console.log(response)
+          result =  false
+        }
+      }).catch(error=>{
+        this.$message.error(error.data.msg);
+        console.log(error)
+        result =  false
+      })
+      return result
     }
   },
   mounted() {
@@ -219,6 +300,3 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>

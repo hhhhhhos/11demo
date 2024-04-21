@@ -28,40 +28,40 @@ const routes = [
       {
         path: '/backend',
         name: 'backend',
-        component: () => import(/* webpackChunkName: "about2" */ '../views/backend/VE.vue'),
+        component: () => import(/* webpackChunkName: "about3" */ '../views/backend/VE.vue'),
         meta: { title: '席巴商城 -商品详情' }
       },
       {
         path: '/user',
         name: 'user',
-        component: () => import(/* webpackChunkName: "about3" */ '../views/user/Index.vue'),
+        component: () => import(/* webpackChunkName: "about4" */ '../views/user/Index.vue'),
         meta: { title: '席巴商城 -用户' },
         redirect: '/user/info',
         children:[
           {
             path: 'info',
             name: 'userinfo',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/info/VE.vue'),
+            component: () => import(/* webpackChunkName: "about5" */ '../views/user/info/VE.vue'),
             meta: { title: '席巴商城 -用户信息' },
 
           },
           {
             path: 'buylist',
             name: 'userbuylist',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/buylist/VE.vue'),
+            component: () => import(/* webpackChunkName: "about6" */ '../views/user/buylist/VE.vue'),
             meta: { title: '席巴商城 -用户购物车' },
 
           },
           {
             path: 'buylist_result',
             name: 'userbuylist_result',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/buylist_result/VE.vue'),
+            component: () => import(/* webpackChunkName: "about7" */ '../views/user/buylist_result/VE.vue'),
             meta: { title: '席巴商城 -用户购物车结算' },
           },
           {
             path: 'historylist',
             name: 'userhistorylist',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/user/historylist/VE.vue'),
+            component: () => import(/* webpackChunkName: "about8" */ '../views/user/historylist/VE.vue'),
             meta: { title: '席巴商城 -用户历史订单' },
           },
         ]
@@ -69,13 +69,13 @@ const routes = [
       {
         path: '/other',
         name: 'other',
-        component: () => import(/* webpackChunkName: "about3" */ '../views/other/Index.vue'),
+        component: () => import(/* webpackChunkName: "about9" */ '../views/other/Index.vue'),
         meta: { title: '席巴商城 -其他' },
         children:[
           {
             path: 'VETa',
             name: 'VETa',
-            component: () => import(/* webpackChunkName: "about3" */ '../views/other/VETa.vue'),
+            component: () => import(/* webpackChunkName: "about10" */ '../views/other/VETa.vue'),
             meta: { title: '席巴商城 -VETa' },
           }
         ]
@@ -83,7 +83,7 @@ const routes = [
       {
         path: '/404',
         name: '404',
-        component: () => import(/* webpackChunkName: "about3" */ '../views/other/VE404.vue'),
+        component: () => import(/* webpackChunkName: "about11" */ '../views/other/VE404.vue'),
         meta: { title: '席巴商城 -404' }
       }
     ]
@@ -91,14 +91,21 @@ const routes = [
   {
     path: '/login',
     name: 'logIn',
-    component: () => import(/* webpackChunkName: "about3" */ '../views/LogIn.vue'),
+    component: () => import(/* webpackChunkName: "about12" */ '../views/LogIn.vue'),
     meta: { title: '席巴商城 -用户登录' },
 
   },
   {
     path: '/gotopay',
     name: 'gotopay',
-    component: () => import(/* webpackChunkName: "about3" */ '../views/gotopay.vue'),
+    component: () => import(/* webpackChunkName: "about13" */ '../views/gotopay.vue'),
+    meta: { title: '席巴商城 -跳转支付' },
+
+  },
+  {
+    path: '/alipay_account',
+    name: 'alipay_account',
+    component: () => import(/* webpackChunkName: "about14" */ '../views/alipay_account.vue'),
     meta: { title: '席巴商城 -跳转支付' },
 
   }
