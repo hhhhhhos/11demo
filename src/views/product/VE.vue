@@ -5,7 +5,7 @@
     <div v-if="!this.$store.state.IsMobile" style="width: 80%;margin: 50px auto;display: flex;" class="myborder">
       <!--图 -->
       <div>
-        <img :src="require(`@/assets/${OneData.photo}.webp`)" class="myborder" style="height:320px;width: 320px;object-fit:contain;margin: 30px 100% 30px 30px;">
+        <img loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)" class="myborder" style="height:320px;width: 320px;object-fit:cover;margin: 30px 100% 30px 30px;">
       </div>
       <!--信息 -->
       <div style="margin: 10px 0 10px 50px;text-align: left;">
@@ -27,18 +27,27 @@
 
       <!--图 -->
       <div>
-        <img :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:90%;width: 100%;object-fit:contain;">
+        <img @click="$openURL(require(`@/assets/${OneData.photo}.webp`))" loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:90%;width: 100%;object-fit:cover;cursor: pointer;">
       </div>
 
       <!--信息 -->
       <div style="width:90%;text-align: left;margin: 5px auto;background-color: white;padding-left: 10px;" class="myborder">
-        <h1 style="font-weight:bolder;color: red;margin: 10px 0 20px 0;"><span style="font-size:x-large;margin-right: 2px;">¥</span>{{OneData.price}}</h1>
+        <h1 style="font-weight:bolder;color: red;margin: 10px 0 10px 0;"><span style="font-size:x-large;margin-right: 2px;">¥</span>{{OneData.price}}</h1>
         <h2 style="margin-top: -15px;">{{OneData.name}}&nbsp;&nbsp;</h2>
-        <p style="margin-top: -5px;">{{OneData.info}}</p>
-        <div style="display: flex;" class="mc2">
-          <div style="color: #00000060;">库存：{{OneData.num}}</div>
+        <p style="margin-top: -10px;">{{OneData.info}}</p>
+        <div style="display: flex;color: #00000060;" class="mc2">
+          <div>库存：{{OneData.num}}</div> <div style="margin-left: 20px;">浏览量：{{OneData.visited_num}}</div> <div style="margin-left: 20px;">销量：{{OneData.sold_num}}</div>
         </div>
         <p style="margin: 10px 0 10px -2px;color: #00000060;">上架日期：{{ OneData.create_time.replace(/T/g, " ") }}</p>
+        <span style="margin: 10px 0px 10px -2px;color: #00000060;">商品评分：</span>
+        <van-rate v-model="mobile.rate_click_value" allow-half void-icon="star" void-color="#eee" @change="rateonChange" />
+        <span style="font-size: small;margin: -100px 0px 0px 10px;color: #00000060;">({{mobile.rate_value?mobile.rate_value:0}}分,{{mobile.rate_num}}人评价)</span>
+      </div>
+
+      <!--评价 -->
+      <div style="width:90%;text-align: left;margin: 10px auto;background-color: white;padding-left: 10px;" class="myborder">
+        <h3>商品评论</h3>
+        <div style="margin: 10px 10px 10px 10px;color: #00000060;">暂无评论</div>
       </div>
 
       <!--防被下栏挡 -->
@@ -59,7 +68,7 @@
         
         <!--图 价 -->
         <div style="margin: 7%;display: flex;justify-content: flex-start; /* 左对齐 */">
-          <img :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:30%;width: 30%;object-fit:contain;border-radius: 10px;">
+          <img @click="$openURL(require(`@/assets/${OneData.photo}.webp`))"  loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:30%;width: 30%;object-fit:cover;border-radius: 10px;">
           <div style="margin:12% 0 0 5%;">
             <h4 style="text-align: left;font-weight:bolder;color: red;margin:0"><span style="font-size:medium;margin-right: 2px;">¥</span>{{OneData.price}}</h4>
             <div style="background-color: red;border-radius: 15px;margin-top: -10px;">
@@ -116,6 +125,7 @@ import { GoodsAction, GoodsActionIcon, GoodsActionButton } from 'vant';
 import { Dialog } from 'vant';
 import { Popup } from 'vant';
 import { Toast } from 'vant';
+import { Rate } from 'vant';
 
 
 export default {
@@ -123,7 +133,8 @@ export default {
     'van-goods-action': GoodsAction,
     'van-goods-action-icon': GoodsActionIcon,
     'van-goods-action-button': GoodsActionButton,
-    'van-popup': Popup
+    'van-popup': Popup,
+    'van-rate': Rate,
   },
   data() {
     return{
@@ -142,16 +153,59 @@ export default {
         unselected_style:"color: black;border: 1px solid white;background-color:ghostwhite;border-radius: 15px;display: inline-block;margin-left: 5%;",
         selected_style:"color: red;border: 1px solid red;background-color:ghostwhite;border-radius: 15px;display: inline-block;margin-left: 5%;",
         direct_buy:false,
-        Datas:[]
+        Datas:[],
+        rate_click_value:null,
+        rate_value:null,
+        rate_num:null
       }
     }
   },
   methods:{
+    // 点星星-手机
+    rateonChange(value) {
+      if(!this.$store.state.IsLogin)
+        return Toast.fail("请登录后评分")
+
+      Toast('当前值：' + value)
+
+      // 手机
+      Toast.loading({
+          message: '加载中...',
+          forbidClick: true,
+          duration: 0, // 持续展示 toast，直到被明确关闭
+        });
+
+
+      // 给商品评分
+      axios.post('product-rate/add-or-update',{
+        product_id:this.$route.query.id,
+        rate:this.mobile.rate_click_value
+      }).then(response=>{
+        if(response.data.code===0){
+          Toast.clear();
+          Toast.fail(response.data.msg)
+        }
+        else {
+          Toast.clear();
+          Toast.success(response.data.data)
+          //this.$router.push('/user/login')
+        }
+        console.log(response)
+      }).catch(error=>{
+        Toast.clear();
+        Toast.fail(error.data.msg);
+        console.log(error)
+      })
+
+    },
     // 手机端点击下栏
     onClickIcon(val){
       console.log(val)
       // 1 客服 2 购物车 4 店铺 5 加购 6 立即购买
       if(val === 4)this.$router.push('/home')
+      else if(val === 2){
+        this.$router.push('/user/buylist')
+      }
       else if(val === 5){
         this.mobile.show = true
         this.mobile.direct_buy = false
@@ -169,6 +223,9 @@ export default {
         if(response.data.data===null)this.$router.push('/404?msg=商品未找到')
         this.OneData = response.data.data
         this.IsTableLoading = false
+        this.mobile.rate_value = response.data.map.rate_value
+        this.mobile.rate_click_value = response.data.map.rate_value
+        this.mobile.rate_num = response.data.map.rate_num
         console.log(response)
       }).catch(error=>{
         console.log(error)
@@ -218,6 +275,7 @@ export default {
             else {
               Toast.clear();
               Toast.success(response.data.data)
+              this.getbuylist()
               this.mobile.show = false
               //this.$router.push('/user/login')
             }

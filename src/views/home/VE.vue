@@ -5,7 +5,7 @@
     <div v-if="!this.$store.state.IsMobile" class="desktop">
       <el-carousel :style="'height:'+ this.$store.state.CURRENT_HEIGHT*0.4 +'px;'">
         <el-carousel-item :style="'height:'+ $store.state.CURRENT_HEIGHT*0.4 +'px;'" v-for="item in 4" :key="item">
-          <img :src="require(`@/assets/B${item}.webp`)" style="object-fit: cover;cursor: pointer;height: 100%;" @click="goto4399">
+          <img loading="lazy"  :src="require(`@/assets/B${item}.webp`)" style="object-fit: cover;cursor: pointer;height: 100%;" @click="goto4399">
         </el-carousel-item>
       </el-carousel>
       <el-menu style="background-color: white;padding:0 80px;" :default-active="activeIndex2" class="el-menu-demo" mode="horizontal" @select="handleSelect">
@@ -25,7 +25,7 @@
           <!-- 商品卡 -->
           <div v-for="(product, index) in tableData" @click="cardclick(product.id)"
             :key="index" class="myborder" style="width:220px;height:190px;display:block;cursor: pointer;margin:30px;background-color: white;padding-top: 8px;" >
-            <img :src="require(`@/assets/${product.photo}.webp`)" style="height:120px;width:200px;object-fit: cover;border-radius: 5px;">
+            <img loading="lazy"  :src="require(`@/assets/${product.photo}.webp`)"   style="height:120px;width:200px;object-fit: cover;border-radius: 5px;">
             <div style="padding:8px">
               <div>
                 {{ product.name }}
@@ -69,7 +69,7 @@
       
       <Swipe class="my-swipe" :autoplay="3000" indicator-color="white">
         <SwipeItem v-for="item in 4" :key="item" style="display: flex; justify-content: center; align-items: center;height: 170px;background-color: rgb(248,248,248);">
-          <img :src="require(`@/assets/B${item}.webp`)" style="object-fit:cover;height:100%;cursor: pointer;" @click="goto4399">
+          <img loading="lazy"  :src="require(`@/assets/B${item}.webp`)" style="object-fit:cover;height:100%;cursor: pointer;" @click="goto4399">
         </SwipeItem>
       </Swipe>
     
@@ -80,22 +80,48 @@
         <Tab title="成人用品"></Tab>
       </Tabs>
 
+      <!-- 筛选排序 -->
+      <van-dropdown-menu style="position: relative;" class="my">
+        <van-dropdown-item v-model="value2" :options="option2" @closed="dropdown_closed(value2)" @change="dropdown_isclick = true"/>
+        <!-- 访问量 -->
+        <div style="margin: 0 10px 4px 0;position:absolute;color: #00000060;font-size: small;right:0;bottom:0;">
+          <i class="el-icon-view"></i>{{mobile.home_visitors}}
+        </div>
+      </van-dropdown-menu>
+
+      
+
       <div v-loading=this.IsTableLoading style="min-height: 100px;">
-        <div style="margin: 20px 5px 10px 5px;" v-for="(product, index) in tableData" @click="cardclick(product.id)"
-              :key="index">
-          <Card
-            style="border-radius: 10px; overflow: hidden;background-color: white;"
-            :num=product.num
-            :price=product.price
-            :desc=product.info
-            :title=product.name
-            :thumb="require(`@/assets/${product.photo}.webp`)"
-          />
-        </div>
+        
+        <!-- 无限滚动 -->
+        <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+        offset=-40
+        >
+
+          <div style="margin: 5px 5px 10px 5px;" v-for="(product, index) in tableData" @click="cardclick(product.id)"
+                :key="index">
+            <Card
+              style="border-radius: 10px; overflow: hidden;background-color: white;"
+              :num=product.num
+              :price=product.price
+              :desc=product.info
+              :title=product.name
+              :thumb="require(`@/assets/${product.photo}.webp`)"
+            >
+            <template #bottom >
+              <div style="float:left;margin-left: 10px;">
+                <i class="el-icon-view"></i>
+                <span style="margin-left: 3px;color: #00000060;">{{product.visited_num}}</span>
+              </div>
+            </template>
+            </Card>
+          </div>
     
-        <div v-if=!this.IsTableLoading style="margin: 20px 0 60px 0;">
-          <Pagination v-model="currentPage" :total-items="TotalPage" :items-per-page="PageSize" />
-        </div>
+        </van-list>
 
       </div>
     
@@ -107,7 +133,9 @@
 <script>
 import axios from '@/utils'
 import { Swipe, SwipeItem } from 'vant';
-import { Search,Card,Tabs,Tab,Pagination } from 'vant';
+import { Search,Card,Tabs,Tab } from 'vant';
+import { List} from 'vant';
+import { DropdownMenu, DropdownItem } from 'vant';
 
 export default {
   components:{
@@ -117,10 +145,27 @@ export default {
     Card,
     Tabs,
     Tab,
-    Pagination
+    'van-list':List,
+    'van-dropdown-menu':DropdownMenu,
+    'van-dropdown-item':DropdownItem
   },
   data() {
     return{
+      // region vant无限滚动手机参数
+      loading: false,
+      finished: false,
+      // end region
+      // region vant主页筛选商品/排序
+      value2: 'a',
+      option2: [
+        { text: '默认排序', value: 'a' },
+        { text: '时间排序', value: 'b' },
+        { text: '访问量排序', value: 'c' },
+        { text: '销量排序', value: 'd' },
+        { text: '评分排序', value: 'e' },
+      ],
+      dropdown_isclick:false,
+      //endregion
       activeIndex1:null,
       activeIndex2:'0',
       input:null,
@@ -138,9 +183,60 @@ export default {
       IsTableLoading:true,
       FName:null,
       FType:null,
+      mobile:{
+        home_visitors:null
       }
+
+    }
   },
   methods:{
+    // 筛选框关闭触发
+    dropdown_closed(value){
+      console.log(value)
+      if(this.dropdown_isclick){
+        this.getproduct()
+        this.dropdown_isclick = false
+      }
+    },
+    // vant手机划到底部时触发
+    async onLoad() {
+      var oldScrollPosition
+      console.log("滚到底部，触发加载")
+      // 异步更新数据
+      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+      this.PageSize +=3
+      await axios.get('product/page',{
+        params: {
+          currentPage: this.currentPage,
+          PageSize: this.PageSize,
+          FName:this.FName,
+          FType:this.FType,
+          value2:this.value2
+        }
+      }).then(response=>{
+        oldScrollPosition = window.pageYOffset
+        this.tableData = response.data.data.records
+        // 防止element-table移动视角
+        setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+        this.TotalPage = response.data.data.total
+        this.mobile.home_visitors = response.data.map.home_visitors
+        this.IsTableLoading = false
+
+        console.log(response)
+      }).catch(error=>{
+        console.log(error)
+      })
+
+      // 加载状态结束
+      this.loading = false;
+
+      // 数据全部加载完成
+      if (this.PageSize >= this.TotalPage) {
+          this.finished = true;
+      }
+    
+
+    },
     adjustArrowPosition() {
       console.log('adjustArrowPosition')
       // 使用类名选择器找到所有的箭头元素
@@ -170,11 +266,13 @@ export default {
           currentPage: this.currentPage,
           PageSize: this.PageSize,
           FName:this.FName,
-          FType:this.FType
+          FType:this.FType,
+          value2:this.value2
         }
       }).then(response=>{
         this.tableData = response.data.data.records
         this.TotalPage = response.data.data.total
+        this.mobile.home_visitors = response.data.map.home_visitors
         this.IsTableLoading = false
         console.log(response)
       }).catch(error=>{
@@ -248,7 +346,7 @@ export default {
     color: #475669;
     font-size: 18px;
     opacity: 0.75;
-    line-height: 300px;
+    /*line-height: 300px;*/
     margin: 0;
   }
 
@@ -273,4 +371,5 @@ export default {
   border: 5px solid rgb(255, 255, 255);
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
 }
+
 </style>

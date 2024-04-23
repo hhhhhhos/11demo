@@ -10,7 +10,7 @@
       </form>
     </div> 
 
-    <div v-else class="login-box mobile">
+    <div v-else class="login-box mobile" style="background-color: rgb(243, 243, 244);">
       <h2>用户注册</h2>
       <form>
         <input type="text" v-model=name placeholder="用户名">

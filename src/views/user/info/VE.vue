@@ -1,69 +1,166 @@
 <template>
   <div>
-    <h1 class="myborder">用户信息</h1>
-    <div v-loading="isloading1" class="myborder" style="margin: 30px 100px 20px 100px;padding: 10px;">
-      <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
-        <div v-if="!isupdateinfo" style="margin: 10px 90px;display: flex;">
-            <div v-if="index==='addresses'" style="display: flex;">
-              <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
-                <div>
-                  <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                    {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
+
+    <div v-if="!this.$store.state.IsMobile">
+      <h1 class="myborder">用户信息</h1>
+      <div v-loading="isloading1" class="myborder" style="margin: 30px 100px 20px 100px;padding: 10px;">
+        <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
+          <div v-if="!isupdateinfo" style="margin: 10px 90px;display: flex;">
+              <div v-if="index==='addresses'" style="display: flex;">
+                <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
+                  <div>
+                    <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
+                      {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
+                    </div>
                   </div>
                 </div>
+              <div v-else style="display: flex;">
+                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data:data }}</div>
               </div>
-            <div v-else style="display: flex;">
-              <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data:data }}</div>
             </div>
-          </div>
-        <div v-else style="margin: 5px 90px;display: flex;">
-          <div style="width: 100px;">{{ index }}</div>:
-          <div style="margin:0px 20px ;">
-            <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
-            <div v-else-if="index==='addresses'">
-              <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
-                {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+          <div v-else style="margin: 5px 90px;display: flex;">
+            <div style="width: 100px;">{{ index }}</div>:
+            <div style="margin:0px 20px ;">
+              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <div v-else-if="index==='addresses'">
+                <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
+                  {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+                </div>
+                <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
               </div>
-              <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
+              <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
             </div>
-            <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
           </div>
         </div>
       </div>
+      <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
+      <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
+      <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
+      <el-button type="primary" @click="logout">退出登录</el-button>
+      <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
+        <el-form ref="form" :model="dialogdata" label-width="80px" >
+          <el-form-item label="所在地区">
+            <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
+          </el-form-item>
+          <el-form-item label="详细地址">
+            <el-input v-model="dialogdata.detail"></el-input>
+          </el-form-item>
+          <el-form-item label="收件人">
+            <el-input v-model="dialogdata.name"></el-input>
+          </el-form-item>
+          <el-form-item label="电话号码">
+            <el-input v-model="dialogdata.phone"></el-input>
+          </el-form-item>
+          <el-form-item label="是否默认">
+            <el-switch
+              v-model="dialogdata.is_default"
+              active-text="是"
+              inactive-text="否"
+              style="float:left;margin-top: 10px;">
+            </el-switch>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirm_change_address">确定</el-button>
+        </span>
+      </el-dialog>
+      <div style="height: 50px;"></div>
     </div>
-    <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
-    <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
-    <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
-    <el-button type="primary" @click="logout">退出登录</el-button>
-    <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
-      <el-form ref="form" :model="dialogdata" label-width="80px" >
-        <el-form-item label="所在地区">
-          <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
-        </el-form-item>
-        <el-form-item label="详细地址">
-          <el-input v-model="dialogdata.detail"></el-input>
-        </el-form-item>
-        <el-form-item label="收件人">
-          <el-input v-model="dialogdata.name"></el-input>
-        </el-form-item>
-        <el-form-item label="电话号码">
-          <el-input v-model="dialogdata.phone"></el-input>
-        </el-form-item>
-        <el-form-item label="是否默认">
-          <el-switch
-            v-model="dialogdata.is_default"
-            active-text="是"
-            inactive-text="否"
-            style="float:left;margin-top: 10px;">
-          </el-switch>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirm_change_address">确定</el-button>
-      </span>
-    </el-dialog>
-    <div style="height: 50px;"></div>
+
+    <div v-else>
+      
+      <div v-loading="isloading1" class="myborder" style="padding: 10px; width: 90vw;margin: 8px auto;">
+        <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
+          
+          
+          <div v-if="!isupdateinfo" style="margin: 5px 5px;display: flex;font-size: small;">
+              <div v-if="index==='addresses'" style="display: flex;">
+                <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
+                  <div>
+                    <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
+                      <div class="div-spacing">
+                        <div>
+                        所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;
+                        </div>
+                        <div>详细地址：{{ data2.detail }} </div>
+                        <div>收件人：{{ data2.name }} </div>
+                        <div>电话：{{ data2.phone }} </div>
+                        <el-button @click="change_address(index2,data2)" style="margin-left: 0px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+                        <div v-if="data2.is_default" style="margin: 5px 0 0 15px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div v-else-if="index==='password'" style="display: flex;">
+                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">哈希码</div>
+              </div>
+              <div v-else style="display: flex;">
+                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
+              </div>
+          </div>
+
+
+          <div v-else style="margin: 5px 5px;display: flex;font-size: small;">
+            <div style="width: 100px;">{{ index }}</div>:
+            <div style="margin:0px 20px ;">
+              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <div v-else-if="index==='addresses'">
+                <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
+                  <div class="div-spacing">
+                    <div>
+                    所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;
+                    </div>
+                    <div>详细地址：{{ data2.detail }} </div>
+                    <div>收件人：{{ data2.name }} </div>
+                    <div>电话：{{ data2.phone }} </div>
+                    <el-button @click="change_address(index2,data2)" style="margin-left: 0px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
+                    <div v-if="data2.is_default" style="margin: 5px 0 0 15px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
+                  </div>
+                </div>
+                <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
+              </div>
+              <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
+      <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
+      <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
+      <el-button type="primary" @click="logout">退出登录</el-button>
+      
+      <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="80vw" >
+        <el-form ref="form" :model="dialogdata" label-width="80px" >
+          <el-form-item label="所在地区">
+            <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
+          </el-form-item>
+          <el-form-item label="详细地址">
+            <el-input v-model="dialogdata.detail"></el-input>
+          </el-form-item>
+          <el-form-item label="收件人">
+            <el-input v-model="dialogdata.name"></el-input>
+          </el-form-item>
+          <el-form-item label="电话号码">
+            <el-input v-model="dialogdata.phone"></el-input>
+          </el-form-item>
+          <el-form-item label="是否默认">
+            <el-switch
+              v-model="dialogdata.is_default"
+              active-text="是"
+              inactive-text="否"
+              style="float:left;margin-top: 10px;">
+            </el-switch>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirm_change_address">确定</el-button>
+        </span>
+      </el-dialog>
+    </div>
+
   </div>
 </template>
 
@@ -228,5 +325,8 @@ export default {
 <style scoped>
 .myhover:hover{
   background-color: rgb(247,248,255);
+}
+.div-spacing > div {
+  margin-bottom: 10px;
 }
 </style>

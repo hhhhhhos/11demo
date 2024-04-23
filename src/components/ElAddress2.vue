@@ -181,7 +181,7 @@ export default {
         if(response.data.code){
           this.$message.success("退出登录成功")
           this.$store.state.IsLogin = false
-          this.$router.push('/home')
+          this.$router.push('/xiba_shop/home')
         }
         else this.$message.error("退出失败："+response.data.msg)
 
@@ -239,7 +239,7 @@ export default {
   watch:{
     // 守望者，未登陆不能访问本页
     '$store.state.IsLogin':function(){
-      if(!this.$store.state.IsLogin)this.$router.push('/home')
+      if(!this.$store.state.IsLogin)this.$router.push('/xiba_shop/home')
     },
     isupdateinfo:function(newv){
       if(!newv){

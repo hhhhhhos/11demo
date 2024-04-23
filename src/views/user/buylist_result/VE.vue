@@ -44,7 +44,7 @@
 
       <div style="margin: 10px;padding: 10px;background-color: white;" class="myborder">
         <h3 style="text-align:left;margin: 0;">确认收货信息</h3> 
-        <E2 ref="address" style="text-align:left;max-height: 23vh;overflow-x: scroll;margin-top: 20px;" @address="address_change" @radio="radio=>radio_change(radio)"></E2>
+        <E2 ref="address" style="text-align:left;max-height: 20vh;overflow-x: scroll;margin-top: 20px;" @address="address_change" @radio="radio=>radio_change(radio)"></E2>
       </div>
 
       <div style="margin: 10px;padding: 10px;background-color: white;" class="myborder">
@@ -211,27 +211,53 @@ export default {
 
       // .....待完善
       // 根据ids删除 请求范例
-      await axios.post('/user/build/order',{
-        "buylistDtoLists":this.Datas,
-        "address":this.$refs.address.obj.addresses[this.$refs.address.radio]
-      })
-      .then(response=>{
-        if(response.data.code){
-          this.$message.success(response.data.data)
-          this.alipay = response.data.map.alipay
-          //setTimeout(() => {window.location.reload()}, 500);
-          result =  true
-        }
-        else {
-          this.$message.error(response.data.msg)
-          console.log(response)
-          result =  false
-        }
-      }).catch(error=>{
-        this.$message.error(error.data.msg);
-        console.log(error)
-        result =  false
-      })
+      if(this.Datas?.[0].buylist.id === null && this.Datas.length === 1){
+        await axios.post('/user/build/order_for_one',{
+              "buylistDtoLists":this.Datas,
+              "address":this.$refs.address.obj.addresses[this.$refs.address.radio]
+            })
+            .then(response=>{
+              if(response.data.code){
+                this.$message.success(response.data.data)
+                this.alipay = response.data.map.alipay
+                //setTimeout(() => {window.location.reload()}, 500);
+                result =  true
+              }
+              else {
+                this.$message.error(response.data.msg)
+                console.log(response)
+                result =  false
+              }
+            }).catch(error=>{
+              this.$message.error(error.data.msg);
+              console.log(error)
+              result =  false
+            })
+
+      }else{
+        await axios.post('/user/build/order',{
+              "buylistDtoLists":this.Datas,
+              "address":this.$refs.address.obj.addresses[this.$refs.address.radio]
+            })
+            .then(response=>{
+              if(response.data.code){
+                this.$message.success(response.data.data)
+                this.alipay = response.data.map.alipay
+                //setTimeout(() => {window.location.reload()}, 500);
+                result =  true
+              }
+              else {
+                this.$message.error(response.data.msg)
+                console.log(response)
+                result =  false
+              }
+            }).catch(error=>{
+              this.$message.error(error.data.msg);
+              console.log(error)
+              result =  false
+            })
+      }
+      
       // 先去后端验证吧 判断是余额支付 还是支付宝 成功后再在后端创建订单
       return result
     },

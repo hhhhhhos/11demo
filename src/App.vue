@@ -71,5 +71,19 @@ h1{
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
+.van-dropdown-menu__bar{
+  height: 26px !important;
+  box-shadow: none!important;
+  background-color: transparent!important;
+  
+}
+.my .van-ellipsis{
+  color: #00000060!important;
+}
+.van-dropdown-menu__item{
+  justify-content: left!important;
+  margin: 3px 0 0 10px!important;
+}
 </style>
 

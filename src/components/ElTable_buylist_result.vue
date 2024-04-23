@@ -13,8 +13,8 @@
           :label="column.label"
           :width="column.width">
           <template slot-scope="scope">
-            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
-            <div v-else-if="column.label=='商品图'"><img :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:contain;"></div>
+            <div v-if="column.label=='创建时间'">{{ tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' ')?tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' '):'时间未知' }}</div>
+            <div v-else-if="column.label=='商品图'"><img loading="lazy"  :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:cover;"></div>
             <div v-else-if="column.label=='购买数量'" style="display: flex;" class="myc1">
               <div style="width: 25px;text-align: center;margin-top: 2px;">{{ tableData[scope.$index].buylist[column.prop] }}</div>
             </div>
@@ -40,8 +40,8 @@
           :width="column.width"
           :align="column.align">
           <template slot-scope="scope">
-            <div v-if="column.label=='创建时间'">{{ tableData[scope.$index]['buylist'][column.prop].replace(/T/g, ' ') }}</div>
-            <div v-else-if="column.label=='商品图'"><img :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:contain;"></div>
+            <div v-if="column.label=='创建时间'">{{ tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' ')?tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' '):'时间未知' }}</div>
+            <div v-else-if="column.label=='商品图'"><img loading="lazy"  :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:cover;"></div>
             <div v-else-if="column.label=='数量'" style="text-align: center;" >
               {{ tableData[scope.$index].buylist[column.prop] }}
             </div>

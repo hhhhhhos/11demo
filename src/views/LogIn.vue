@@ -28,7 +28,7 @@
     <div v-else style="display: flex;justify-content: center;align-items: center;">
 
       <div>
-          <div v-if="!IsRegis" class="login-box mobile">
+          <div v-if="!IsRegis" class="login-box mobile" style="background-color: rgb(243, 243, 244);">
             <h2>用户登录</h2>
             <form>
               <input type="text" v-model=name placeholder="用户名">
@@ -212,5 +212,6 @@ a:-webkit-any-link {
 a:hover{
   color:black;
 }
+
 </style>
 

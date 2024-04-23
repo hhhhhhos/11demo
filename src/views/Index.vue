@@ -32,7 +32,7 @@
 
     <router-view/>
 
-    <div style="height: 20px;width: 20px;"></div>
+    <div style="height: 100px;width: 20px;"></div>
 
   </div>
 </template>

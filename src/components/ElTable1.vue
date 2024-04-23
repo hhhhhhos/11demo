@@ -87,16 +87,85 @@
     </div>
 
     <div v-else>
-      <List
-        v-model="IsTableLoading"
-        :finished="mobile.finished"
+      <van-list
+        v-model="loading"
+        :finished="finished"
         finished-text="没有更多了"
-        @load="gettable"
+        @load="onLoad"
+        offset=-40
       >
-        <Cell v-for="(item, index) in tableData" :key="index" :title="item" >
+      <!-- 滚动条与底部距离小于 offset 时触发load事件 -->
 
-        </Cell>
-      </List>
+        <el-table
+          v-loading=IsTableLoading
+          :data="tableData"
+          style="width: 100vw;background-color: white;">
+
+          <el-table-column
+            type="expand"
+            width="25">
+            <template slot-scope="props">
+              <div style="margin: 0 30px;">
+                <ET1 :Datas="props.row.info" :columns="columns1" :showHeader="false"></ET1>
+                <el-descriptions title="收货信息" style="margin: 20px 0 20px 20px;">
+                    <el-descriptions-item label="姓名">{{ props.row.address.name }}</el-descriptions-item>
+                    <el-descriptions-item label="手机号">{{ props.row.address.phone }}</el-descriptions-item>
+                    <el-descriptions-item label="居住地">{{props.row.address.info?.[0]}}</el-descriptions-item>
+                    <el-descriptions-item label="备注">
+                      <el-tag v-if="props.row.status==='未支付'" size="small">{{props.row.status}}</el-tag>
+                      <el-tag v-else type="success" size="small">{{props.row.status}}</el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="收货地址">{{ props.row.address.info?.[0]+props.row.address.info?.[1]+props.row.address.info?.[2]+props.row.address.detail }}</el-descriptions-item>
+                  </el-descriptions>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-for="(column, index) in this.columns"
+            :key="index"
+            :prop="column.prop"
+            :label="column.label"
+            :width="column.width"
+            :align="column.align"
+            >
+            <template slot-scope="scope" >
+              <div v-if="column.label==='时间'">{{ tableData[scope.$index][column.prop].replace(/T/g, ' ') }}</div>
+              <div v-if="column.label==='订单ID'">{{ tableData[scope.$index][column.prop]}}</div>
+              <div v-if="column.label==='总额'">{{ tableData[scope.$index][column.prop]}}</div>
+              <div v-if="column.label==='件数'">{{ tableData[scope.$index][column.prop]}}</div>
+              <div v-if="column.label==='信息'">
+                <span v-for="(data, index) in tableData[scope.$index][column.prop]" :key="index">
+                  {{ data.product.name }} &nbsp;
+                </span>
+              </div>
+              <div v-if="column.label==='状态'">
+                <el-tag v-if="tableData[scope.$index].status==='未支付'" style="cursor: pointer;" @click="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
+                </el-tag>
+                <el-tag v-else type="success" style="cursor: pointer;" @click="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
+                </el-tag>
+              </div>
+              <div v-if="column.label==='操作'">
+                <el-button @click="confirmtodelete(tableData[scope.$index].id,tableData[scope.$index].status)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+
+      </van-list>
+
+
+      <!-- 弹出框 --> 
+      <el-dialog :title="this.dialog_title" :visible.sync="dialogVisible" width="80vw" center>
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <el-radio v-model="radio2" label="1">余额(剩余:{{ this.obj.money }})</el-radio>
+          <el-radio v-model="radio2" label="2">支付宝</el-radio>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="final_pay">确定</el-button>
+        </span>
+      </el-dialog>
+
     </div>
 
   </div>
@@ -105,7 +174,7 @@
 <script>
 import axios from '@/utils';
 import ET1 from '/src/components/ElTable_buylist_result'
-import { List,Cell } from 'vant';
+import { List} from 'vant';
 
 export default {
   props: {
@@ -114,12 +183,16 @@ export default {
     PtableData:Array
   },
   components:{
-    List,
-    Cell,
+    'van-list':List,
+    //'van-cell':Cell,
     ET1
   },
   data() {
     return{
+      // region vant手机参数
+      loading: false,
+      finished: false,
+      // end region
       tableData:[],
       columns1 : [
         //{ prop: 'id', label: 'ID', width: '100' },
@@ -156,12 +229,47 @@ export default {
         "num":null,
         "name":null
       },
-      mobile:{
-        finished:false
-      }
     }
   },
   methods:{
+    // vant手机无限滚动范例
+    async onLoad() {
+      var oldScrollPosition
+      console.log("滚到底部，触发加载")
+      // 异步更新数据
+      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
+      this.PageSize +=3
+      await axios.get(this.geturl,{
+        params: {
+          currentPage: this.currentPage,
+          PageSize: this.PageSize
+        }
+      }).then(response=>{
+        if(response.data.code===0)this.$message.error(response.data.msg)
+        else {
+          oldScrollPosition = window.pageYOffset
+          this.tableData = response.data.data.records
+          // 防止element-table移动视角
+          setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+          this.TotalPage = response.data.data.total
+          this.IsTableLoading = false
+          console.log(response)
+        }
+      }).catch(error=>{
+        this.$message.error(error.data.msg)
+        console.log(error)
+      })
+
+      // 加载状态结束
+      this.loading = false;
+
+      // 数据全部加载完成
+      if (this.PageSize >= this.TotalPage) {
+          this.finished = true;
+      }
+      
+
+    },
     // 拿表
     gettable(){
       axios.get(this.geturl,{
@@ -182,8 +290,6 @@ export default {
         this.$message.error(error.data.msg)
         console.log(error)
       })
-
-      this.mobile.finished
 
     },
     // 页容量变化

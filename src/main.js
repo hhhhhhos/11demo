@@ -9,6 +9,14 @@ import 'vant/lib/index.css';
 
 Vue.use(ElementUI);
 
+// 添加一个全局方法
+Vue.prototype.$openURL = function (url) {
+  window.open(url)
+};
+Vue.prototype.$openProduct = function (id) {
+  this.$router.push(`/product?id=${id}`)
+};
+
 
 const vue = new Vue({
   router,
