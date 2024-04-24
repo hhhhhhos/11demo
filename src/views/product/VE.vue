@@ -161,7 +161,7 @@ export default {
     }
   },
   methods:{
-    // 点星星-手机
+    // 手机-商品评分
     rateonChange(value) {
       if(!this.$store.state.IsLogin)
         return Toast.fail("请登录后评分")
@@ -290,7 +290,12 @@ export default {
         
 
     },
+    // 手机-立刻购买
     direct_buy(){
+      if(this.OneData.num === 0){
+        Toast.fail('库存不足')
+        return
+      }
       console.log("直接购买，不加购")
       var buylist = {
                     "id": null,

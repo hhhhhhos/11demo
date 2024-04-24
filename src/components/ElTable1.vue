@@ -234,7 +234,7 @@ export default {
   methods:{
     // vant手机无限滚动范例
     async onLoad() {
-      var oldScrollPosition
+      //var oldScrollPosition
       console.log("滚到底部，触发加载")
       // 异步更新数据
       // setTimeout 仅做示例，真实场景中一般为 ajax 请求
@@ -247,10 +247,11 @@ export default {
       }).then(response=>{
         if(response.data.code===0)this.$message.error(response.data.msg)
         else {
-          oldScrollPosition = window.pageYOffset
+          //oldScrollPosition = window.pageYOffset
           this.tableData = response.data.data.records
           // 防止element-table移动视角
-          setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+          //setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+          this.loading1 = false
           this.TotalPage = response.data.data.total
           this.IsTableLoading = false
           console.log(response)

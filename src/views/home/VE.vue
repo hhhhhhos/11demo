@@ -200,7 +200,7 @@ export default {
     },
     // vant手机划到底部时触发
     async onLoad() {
-      var oldScrollPosition
+      //var oldScrollPosition
       console.log("滚到底部，触发加载")
       // 异步更新数据
       // setTimeout 仅做示例，真实场景中一般为 ajax 请求
@@ -214,10 +214,11 @@ export default {
           value2:this.value2
         }
       }).then(response=>{
-        oldScrollPosition = window.pageYOffset
+        //oldScrollPosition = window.pageYOffset
         this.tableData = response.data.data.records
         // 防止element-table移动视角
-        setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+        //setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+        this.loading1 = false
         this.TotalPage = response.data.data.total
         this.mobile.home_visitors = response.data.map.home_visitors
         this.IsTableLoading = false

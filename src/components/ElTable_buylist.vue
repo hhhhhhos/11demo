@@ -103,8 +103,13 @@
             <div v-else>
               <div v-if="column.label=='创建时间'">{{ tableData?.[scope.$index]?.['buylist'][column.prop].replace(/T/g, ' ') }}</div>
               <div v-else-if="column.label=='商品图'"><img loading="lazy"  :src="require(`@/assets/${tableData?.[scope.$index]?.['product']?.[column.prop]}.webp`)" style="height:100px;width: 100px;object-fit:cover;"></div>
-              <div v-else-if="column.label=='购买数量'" class="myc1">
-                  <p style="color: darkgray;">商品卖完啦</p>
+              <div v-else-if="column.label=='信息'">
+                <div style="text-align: left;margin: 0 0px 10px 2vw;">{{ tableData[scope.$index]['product'].name }}</div>
+                <div style="text-align: left;margin: 0 0px 10px 2vw;color:red;">¥<span style="color:red;margin-left: 5px;">{{ tableData[scope.$index]['product'].price }}</span></div>
+                <div style="display: flex;justify-content:start;margin: 0 0 0 2vw;">
+                    <p style="color: darkgray;margin: 0;padding: 0;">商品卖完啦</p>
+                </div>
+                
               </div>
               <div v-else-if="column.label=='操作'">
                 <el-button type="danger" icon="el-icon-delete" circle @click="confirmtodelete(tableData[scope.$index].product.name,tableData[scope.$index].buylist.id)"></el-button>
@@ -296,13 +301,14 @@ export default {
             setTimeout(async() => {
               var oldtableData = JSON.parse(JSON.stringify(this.tableData))
               this.PageSize +=5
-              const oldScrollPosition = window.pageYOffset
-              console.log("oldScrollPosition:"+oldScrollPosition)
+              //var oldScrollPosition = window.pageYOffset
+              //console.log("oldScrollPosition:"+oldScrollPosition)
               var result = await this.gettable()
               if(result){
                 this.tableData = oldtableData.concat(this.tableData)
               }
-              setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+              //setTimeout(() => {window.scrollTo(0, oldScrollPosition),this.loading1 = false}, 0);
+              this.loading1 = false
             }, 1000);// 箭头函数，可以保留上下文this定义域
           }else{
             return
