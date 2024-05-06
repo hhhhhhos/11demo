@@ -2,24 +2,50 @@
   <div>
     
     <!-- 电脑 -->
-    <div v-if="!this.$store.state.IsMobile" style="width: 80%;margin: 50px auto;display: flex;" class="myborder">
-      <!--图 -->
-      <div>
-        <img loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)" class="myborder" style="height:320px;width: 320px;object-fit:cover;margin: 30px 100% 30px 30px;">
-      </div>
-      <!--信息 -->
-      <div style="margin: 10px 0 10px 50px;text-align: left;">
-        <h1>&lt;&lt;&nbsp;&nbsp;{{OneData.name}}&nbsp;&nbsp;>></h1>
-        <h1 style="font-weight:bolder;color: red;">&nbsp;{{OneData.price}}元</h1>
-        <p>{{OneData.info}}</p>
-        <div style="margin: 100px 0 40px 0;display: flex;" class="mc2">
-          <el-button size="medium" type="warning"  style="color:white;" @click="addtobuylist">加入购物车</el-button>
-          <el-input-number style="top: 0px;font-size: larger;margin-left: 40px;" v-model="product.num" :min="1" :max="OneData.num" label="数量">
-          </el-input-number>
-          <div style="padding: 40px 0 0 20px;color: #00000060;">库存：{{OneData.num}}</div>
+    <div v-if="!this.$store.state.IsMobile">
+      
+      <div style="width: 80%;margin: 50px auto;display: flex;" class="myborder">
+        <!--图 -->
+        <div>
+          <img loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)" class="myborder" style="height:320px;width: 320px;object-fit:cover;margin: 30px 100% 30px 30px;">
         </div>
-        <h4 style="">上架日期：{{ OneData.create_time.replace(/T/g, " ") }}</h4>
+        <!--信息 -->
+        <div style="margin: 10px 0 10px 50px;text-align: left;">
+          <h1>&lt;&lt;&nbsp;&nbsp;{{OneData.name}}&nbsp;&nbsp;>></h1>
+          <h1 style="font-weight:bolder;color: red;"><span style="font-size: x-large;">¥</span>&nbsp;{{OneData.price}}</h1>
+          <p>{{OneData.info}}</p>
+          
+          <!-- 评分 -->
+          <div style="margin-top: 30px;">
+            <span style="margin: 10px 0px 10px -2px;color: #00000060;">商品评分：</span>
+            <van-rate v-model="mobile.rate_click_value" allow-half void-icon="star" void-color="#eee" @change="rateonChange" />
+            <span style="font-size: small;margin: -100px 0px 0px 10px;color: #00000060;">({{mobile.rate_value?mobile.rate_value:0}}分,{{mobile.rate_num}}人评价)</span>
+          </div>
+
+          
+
+          <!-- 其他 -->
+          <div style="margin: 100px 0 40px 0;display: flex;" class="mc2">
+            <el-button size="medium" type="warning" style="color:white;width:200px;" @click="addtobuylist">加入购物车</el-button>
+            <el-button size="medium"  style="color:white;background-color: red;width:200px;" @click="direct_buy">直接购买</el-button>
+            <el-input-number style="top: 0px;font-size: larger;margin-left: 40px;" v-model="product.num" :min="1" :max="OneData.num" label="数量">
+            </el-input-number>
+
+            <div style="display: flex;color: #00000060;padding: 40px 0 0 20px;" class="mc2">
+              <div>库存：{{OneData.num}}</div> <div style="margin-left: 20px;">浏览量：{{OneData.visited_num}}</div> <div style="margin-left: 20px;">销量：{{OneData.sold_num}}</div>
+            </div>
+            
+          </div>
+          <h4 style="">上架日期：{{ OneData.create_time.replace(/T/g, " ") }}</h4>
+        </div>
       </div>
+
+      <!--评价 -->
+      <div style="width:80%;text-align: left;margin: 10px auto;background-color: white;padding-left: 10px;" class="myborder">
+        <h3>商品评论</h3>
+        <div style="margin: 10px 10px 10px 10px;color: #00000060;">暂无评论</div>
+      </div>
+
     </div>
 
     <!-- 手机 -->
@@ -229,7 +255,7 @@ export default {
         console.log(response)
       }).catch(error=>{
         console.log(error)
-        this.$router.push('/404?msg=商品未找到')
+        this.$router.push('/404msg=商品未找到')
       })
       // 获取购物车数量
       this.getbuylist()

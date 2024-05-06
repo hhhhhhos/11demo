@@ -90,8 +90,15 @@ const routes = [
   },
   {
     path: '/login',
-    name: 'logIn',
+    name: 'login',
     component: () => import(/* webpackChunkName: "about12" */ '../views/LogIn.vue'),
+    meta: { title: '席巴商城 -用户登录' },
+
+  },
+  {
+    path: '/login3',
+    name: 'logIn',
+    component: () => import(/* webpackChunkName: "about12_1" */ '../views/LogIn3.vue'),
     meta: { title: '席巴商城 -用户登录' },
 
   },
@@ -103,9 +110,29 @@ const routes = [
 
   },
   {
+    path: '/gotowechat',
+    name: 'gotowechat',
+    component: () => import(/* webpackChunkName: "about14" */ '../views/gotowechat.vue'),
+    meta: { title: '席巴商城 -跳转微信登录' },
+
+  },
+  {
+    path: '/url_scan',
+    name: '扫描二维码',
+    component: () => import(/* webpackChunkName: "about14" */ '../views/url_scan.vue'),
+    meta: { title: '席巴商城 -扫码授权' },
+
+  },
+  {
+    path: '/wechatnow',
+    name: 'wechatnow',
+    meta: { title: '席巴商城 -wechatnow' },
+    redirect: 'login',
+  },
+  {
     path: '/alipay_account',
     name: 'alipay_account',
-    component: () => import(/* webpackChunkName: "about14" */ '../views/alipay_account.vue'),
+    component: () => import(/* webpackChunkName: "about15" */ '../views/alipay_account.vue'),
     meta: { title: '席巴商城 -跳转支付' },
 
   }
@@ -114,7 +141,7 @@ const routes = [
 const router = new VueRouter({
   routes,
   mode: 'history',
-  base: '/xiba_shop'
+  base: '/xiba-shop'
 })
 
 router.onError((error) => {
@@ -133,24 +160,41 @@ router.beforeEach((to, from, next) => {
   // 提醒自己不要死循环
   console.log(to.path)
   console.log(from.path)
+  console.log(store.state.IsLogin)
   console.log("不要无限跳转")
+
   // 设定标题
   if (to.meta.title) {
     document.title = to.meta.title
   }
 
   // 前端登录跳转
-  const allowedPaths = ['/login', '/product','/home'];
+  const allowedPaths = ['/login', '/product','/home','/login3','/url_scan','/gotowechat','/gotopay'];
+  
+  // 首次路径保存
+  if (!store.state.IsLogin && !allowedPaths.includes(to.path)&& to.path!=='/404') {
+    sessionStorage.setItem('redirectPath', to.fullPath);
+    console.log("保存:"+to.fullPath)
+  }
+  
   // login
   if(!store.state.IsLogin && !allowedPaths.includes(to.path)){
+    console.log("未登录")
     next('/login')
   }
-    
   
+  // 登录不能再跳登录页
+  const blockPaths = ['/login','/login3','/url_scan']
+  if(store.state.IsLogin && blockPaths.includes(to.path)){
+    this.$message.error("登录不能再跳登录页")
+    console.log("登录不能再跳登录页")
+    next('/home')
+  }
 
   //404
   const { resolved } = router.resolve(to.path)
   if (resolved.matched.length) {
+    //console.log("顺利下一跳")
     next()
   } else {
     next('/404') // 没有符合的就404

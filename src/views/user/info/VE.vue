@@ -7,21 +7,24 @@
         <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
           <div v-if="!isupdateinfo" style="margin: 10px 90px;display: flex;">
               <div v-if="index==='addresses'" style="display: flex;">
-                <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
+                <div style="width: 150px;flex-shrink: 0;">{{ index }}</div>:
                   <div>
                     <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
                       {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
                     </div>
                   </div>
-                </div>
+              </div>
+              <div v-else-if="index==='wechat_headimgurl'" style="display: flex;">
+                <div style="width: 150px;display: flex;align-items: center;">{{ index }}</div><span style="display: flex;align-items: center;">:</span><img style="margin:0 20px ;border-radius: 66px;" :src="data">
+              </div>
               <div v-else style="display: flex;">
-                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data:data }}</div>
+                <div style="width: 150px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data.replace("T"," " ):data }}</div>
               </div>
             </div>
           <div v-else style="margin: 5px 90px;display: flex;">
-            <div style="width: 100px;">{{ index }}</div>:
+            <div style="width: 150px;">{{ index }}</div>:
             <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
               <div v-else-if="index==='addresses'">
                 <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
                   {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
@@ -95,6 +98,15 @@
               <div v-else-if="index==='password'" style="display: flex;">
                 <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">哈希码</div>
               </div>
+              <div v-else-if="index==='wechat_headimgurl'" style="display: flex;">
+                <div style="width: 120px;display: flex;align-items: center;">{{ index }}</div><span style="display: flex;align-items: center;">:</span><img style="margin:0 20px ;border-radius: 66px;" :src="data">
+              </div>
+              <div v-else-if="index==='wechat_nickname'" style="display: flex;">
+                <div style="width: 120px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
+              </div>
+              <div v-else-if="index==='wechat_unionid'" style="display: flex;">
+                <div style="width: 120px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
+              </div>
               <div v-else style="display: flex;">
                 <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
               </div>
@@ -104,7 +116,7 @@
           <div v-else style="margin: 5px 5px;display: flex;font-size: small;">
             <div style="width: 100px;">{{ index }}</div>:
             <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
               <div v-else-if="index==='addresses'">
                 <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
                   <div class="div-spacing">

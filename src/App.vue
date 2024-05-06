@@ -27,7 +27,7 @@ export default {
         this.$store.state.MIN_WIDTH = "300px"
         this.$store.state.IsMobile = true
       }else{
-        this.$store.state.MIN_WIDTH = "1200px"
+        this.$store.state.MIN_WIDTH = "1600px"
         this.$store.state.IsMobile = false
       }
     },

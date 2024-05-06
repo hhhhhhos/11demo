@@ -3,7 +3,7 @@
     
     <!-- 电脑 -->
     <div v-if="!this.$store.state.IsMobile" class="desktop">
-      <el-carousel :style="'height:'+ this.$store.state.CURRENT_HEIGHT*0.4 +'px;'">
+      <el-carousel :style="'height:'+ this.$store.state.CURRENT_HEIGHT*0.4 +'px;overflow-y: hidden;'">
         <el-carousel-item :style="'height:'+ $store.state.CURRENT_HEIGHT*0.4 +'px;'" v-for="item in 4" :key="item">
           <img loading="lazy"  :src="require(`@/assets/B${item}.webp`)" style="object-fit: cover;cursor: pointer;height: 100%;" @click="goto4399">
         </el-carousel-item>
@@ -18,28 +18,70 @@
           <el-button @click="clicksearch" round>搜索</el-button>
         </div>
       </el-menu>
-      <!-- 左右间距 -->
-      <div style="margin:0 auto;width:80%;">
-        <!-- 商品架 -->
-        <div v-if="tableData.length!==0" v-loading="IsTableLoading" style="display: flex;flex-wrap: wrap;margin:50px auto;justify-content: space-around;">
-          <!-- 商品卡 -->
-          <div v-for="(product, index) in tableData" @click="cardclick(product.id)"
-            :key="index" class="myborder" style="width:220px;height:190px;display:block;cursor: pointer;margin:30px;background-color: white;padding-top: 8px;" >
-            <img loading="lazy"  :src="require(`@/assets/${product.photo}.webp`)"   style="height:120px;width:200px;object-fit: cover;border-radius: 5px;">
-            <div style="padding:8px">
-              <div>
-                {{ product.name }}
-              </div>
-              <div style="margin-top:8px;color:red;font-weight:bold;">
-                {{ product.price }}元
-              </div>
-            </div>
+
+      <!-- 筛选排序 -->
+      <van-dropdown-menu style="position: relative;margin-top: 8px;" class="my">
+          <van-dropdown-item v-model="value2" :options="option2" @closed="dropdown_closed(value2)" @change="dropdown_isclick = true"/>
+          <!-- 访问量 -->
+          <div style="margin: 0 10px 4px 0;position:absolute;color: #00000060;right:0;bottom:0;">
+            <i class="el-icon-view"></i>&nbsp;{{mobile.home_visitors}}
           </div>
+      </van-dropdown-menu>
+
+      <!-- 左右间距 -->
+      <div style="width:100%;margin: 0px auto;">
+
+        <!-- 商品架 -->
+        <div v-if="tableData.length!==0" v-loading="IsTableLoading">
+          <el-row style="width: 1500px;margin: 0 auto;">
+            <el-col v-for="(product, index) in tableData" :key="index" :span="6" >
+              <!-- 商品卡 -->
+              <div @click="cardclick(product.id)"
+                 class="mybordert" style="width:280px;height:380px;display:block;cursor: pointer;margin:20px auto;background-color: white;object-fit: contain;" >
+                <img loading="lazy"  :src="require(`@/assets/${product.photo}.webp`)"   style="height:280px;width:280px;object-fit: cover;border-radius: 5px;">
+                
+                <!-- 前两行 1名字-评分 2价格-评分信息 -->
+                <div style="padding:8px;margin: 5px 0 0 5px;">
+                  
+                  <div style="display: flex;justify-content: space-between;font-weight:bold;">
+                    <div>{{ product.name }}</div>
+                    <!-- 评分 -->
+                    <van-rate  v-model="product.rate" allow-half void-icon="star" void-color="#eee" readonly />
+                  </div>
+                  
+                  <div style="display: flex;justify-content: space-between;margin-top:10px;color:red;font-weight:bold;">
+                    <div style="display: flex;">
+                      <span style="font-size: medium;display: flex;align-items: center;margin-right: 3px;">¥</span><span style="font-size: larger;">{{ product.price }}</span>
+                    </div>
+                    <div>
+                      <span style="font-size: small;color: #00000060;">({{product.rate?product.rate:0}}分,{{product.rate_num?product.rate_num:0}}人评价)</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- 后一行 日期 售量 访问量 -->
+                <div style="float:right;margin: 0 10px 10px 0;color: #00000060;">
+                  <i class="el-icon-view"></i>
+                  <span style="margin-left: 3px;">{{product.visited_num}}</span>
+                </div>
+                <div style="float:right;margin: 0 10px 10px 0;color: #00000060;">
+                  <i class="el-icon-shopping-cart-1"></i>
+                  <span style="margin-left: 3px;">{{product.sold_num}}</span>
+                </div>
+                <div style="float:left;margin: 0 0 10px 15px;color: #00000060;">
+                  <span style="font-size: small;">{{product.create_time?.slice(0,10)}}</span>
+                </div>
+
+              </div>
+            </el-col>
+          </el-row>
         </div>
         <div v-else>
           <div style="margin: 50px 0 50px 0;color: gainsboro;">无结果</div>
         </div>
         <el-pagination
+          style="margin-top: 50px;"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
@@ -136,6 +178,7 @@ import { Swipe, SwipeItem } from 'vant';
 import { Search,Card,Tabs,Tab } from 'vant';
 import { List} from 'vant';
 import { DropdownMenu, DropdownItem } from 'vant';
+import { Rate } from 'vant';
 
 export default {
   components:{
@@ -147,7 +190,8 @@ export default {
     Tab,
     'van-list':List,
     'van-dropdown-menu':DropdownMenu,
-    'van-dropdown-item':DropdownItem
+    'van-dropdown-item':DropdownItem,
+    'van-rate': Rate,
   },
   data() {
     return{
@@ -162,7 +206,8 @@ export default {
         { text: '时间排序', value: 'b' },
         { text: '访问量排序', value: 'c' },
         { text: '销量排序', value: 'd' },
-        { text: '评分排序', value: 'e' },
+        { text: '评分最高', value: 'e' },
+        { text: '评分最低', value: 'f' },
       ],
       dropdown_isclick:false,
       //endregion
@@ -338,6 +383,8 @@ export default {
 </script>
 
 <style scoped>
+
+  
   .el-carousel__arrow {
     top: 50%;
 }
@@ -367,10 +414,15 @@ export default {
     background-color: #d3dce6;
   }
 
-  .myborder {
+  .mybordert {
   border-radius: 5px;
-  border: 5px solid rgb(255, 255, 255);
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
+}
+
+.mybordert:hover {
+  transform: scale(1.03); /* 放大效果 */
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* 悬浮时增加阴影 */
 }
 
 </style>

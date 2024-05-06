@@ -40,8 +40,13 @@ export default {
       setTimeout(() => {
         // 防止重复跳转
         sessionStorage.setItem('StopRedirectPay',"true")
-        window.location.href = `${process.env.VUE_APP_API_URL}test/pay?outTradeNo=${id}&totalAmount=${money}&subject="${name}等${num}件商品"`;
-        }, 500); // 500毫秒后跳转
+
+        // 电脑网页版扫码支付 手机困难
+        if(!this.$store.state.IsMobile)window.location.href = `${process.env.VUE_APP_API_URL}test/pay?outTradeNo=${id}&totalAmount=${money}&subject="${name}等${num}件商品"&productCode=FAST_INSTANT_TRADE_PAY`;
+        // 手机支付 productCode=QUICK_WAP_WAY
+        else window.location.href = `${process.env.VUE_APP_API_URL}test/pay?outTradeNo=${id}&totalAmount=${money}&subject="${name}等${num}件商品"&productCode=QUICK_WAP_WAY`;
+      
+      }, 500); // 500毫秒后跳转
     }else{
       this.$message("勿重复跳转，请从订单页重新发起")
     }

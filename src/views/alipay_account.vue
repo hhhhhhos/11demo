@@ -1,21 +1,28 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div>
-    <br><br><br>
-    <p>
-      <strong>支付宝沙箱测试账户:</strong>chhmyv5582@sandbox.com
-    </p>
-    <p>
-      <strong>登录密码:</strong>111111
-    </p>
-    <p>
-      <strong>支付密码:</strong>111111
-    </p>
-    <p>
-      沙箱环境无法登录正常账户
-    </p>
+    <div v-if="is_sanbox">
+      <br><br><br>
+      <p>
+        <strong>支付宝沙箱测试账户:</strong>chhmyv5582@sandbox.com
+      </p>
+      <p>
+        <strong>登录密码:</strong>111111
+      </p>
+      <p>
+        <strong>支付密码:</strong>111111
+      </p>
+      <p>
+        沙箱环境无法登录正常账户
+      </p>
 
-    
+      
+    </div>
+    <div v-else>
+      <p>
+        <strong>正在跳转……</strong>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -26,6 +33,7 @@ export default {
   },
   data() {
     return{
+      is_sanbox:false
     }
   },
   methods:{
@@ -40,7 +48,8 @@ export default {
 
     
     setTimeout(() => {
-      window.open(this.$router.resolve(`/gotopay?id=${id}&money=${money}&num=${num}&name=${name}`).href, '_blank');
+      //window.open(this.$router.resolve(`/gotopay?id=${id}&money=${money}&num=${num}&name=${name}`).href, '_blank');
+      this.$router.push(`/gotopay?id=${id}&money=${money}&num=${num}&name=${name}`)
       }, 500); // 1000毫秒后跳转
   }
 }
