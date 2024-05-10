@@ -12,6 +12,7 @@
             <h2>用户登录</h2>
             <form>
               <input type="text" v-model=name placeholder="用户名 / 邮箱">
+              <input type="password" v-model=password placeholder="密码">
               <div style="display: flex; align-items: center;position: relative;">
                 <input type="text" v-model="captch" placeholder="验证码" style="margin-right: 8px;">
                 <div style="background-color: brown;">
@@ -19,7 +20,6 @@
                 </div>
                 <div v-if="Is_captchaLoading" class="spinner"></div>
               </div>
-              <input type="password" v-model=password placeholder="密码">
               <div style="margin: 20px 0;position: relative;">
                 <div style="display: inline;">
                   <a  @click="IsRegis=true">去注册</a>
@@ -103,8 +103,8 @@ export default {
   },
   data() {
     return{
-      name:'',
-      password:"",
+      name:'visitor',
+      password:"111111",
       IsRegis:false,
       captchaBase64Img:"", //图
       captch:"", // 验证码

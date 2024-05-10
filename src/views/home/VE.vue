@@ -148,7 +148,7 @@
                 :key="index">
             <Card
               style="border-radius: 10px; overflow: hidden;background-color: white;"
-              :num=product.num
+              :num=product.sold_num
               :price=product.price
               :desc=product.info
               :title=product.name
@@ -158,6 +158,9 @@
               <div style="float:left;margin-left: 10px;">
                 <i class="el-icon-view"></i>
                 <span style="margin-left: 3px;color: #00000060;">{{product.visited_num}}</span>
+
+                <i class="el-icon-view"></i>
+                <span style="margin-left: 3px;color: #00000060;">{{product.comment_num}}</span>
               </div>
             </template>
             </Card>

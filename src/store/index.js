@@ -5,8 +5,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    IsLogin : false, //登录状态
+    IsLogin : true, //登录状态 // 不为true会在初始界面屏闪
     UserName:null,
+    UserId:null,
     MIN_WIDTH:"1200px", // 屏幕最小宽度
     CURRENT_WIDTH:null, // 当前屏幕宽度
     CURRENT_HEIGHT:null,

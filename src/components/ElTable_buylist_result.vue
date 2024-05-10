@@ -30,7 +30,7 @@
       <el-table
         v-loading=IsTableLoading
         :data="tableData"
-        style="width: 100%"
+        style="width: 100vw;"
         :show-header="showHeader">
         <el-table-column
           v-for="(column, index) in this.columns"
@@ -41,7 +41,7 @@
           :align="column.align">
           <template slot-scope="scope">
             <div v-if="column.label=='创建时间'">{{ tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' ')?tableData?.[scope.$index]?.['buylist']?.[column.prop]?.replace(/T/g, ' '):'时间未知' }}</div>
-            <div v-else-if="column.label=='商品图'"><img loading="lazy"  :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:cover;"></div>
+            <div v-else-if="column.label=='商品图'"><img @click="$router.push(`/product?id=${tableData[scope.$index]['product'].id}`)" loading="lazy"  :src="getImagePath(tableData[scope.$index]['product'][column.prop])" style="height:100px;width: 100px;object-fit:cover;"></div>
             <div v-else-if="column.label=='数量'" style="text-align: center;" >
               {{ tableData[scope.$index].buylist[column.prop] }}
             </div>

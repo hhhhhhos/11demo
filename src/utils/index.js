@@ -18,7 +18,7 @@ service.interceptors.response.use(
     if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
       vue.$message.error('请求超时:'+error.message)
     }else vue.$message.error('error:'+error.message)
-    return Promise.reject(error)
+    //return Promise.reject(error) // 这里return 会传递异常到上一层 不return就不会传递
   }
 )
 

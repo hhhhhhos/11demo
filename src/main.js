@@ -3,10 +3,13 @@ import ElementUI from 'element-ui';
 import App from './App.vue';
 import router from './router'
 import store from './store'
+import bootstrapvue from 'bootstrap-vue'
 
 import 'element-ui/lib/theme-chalk/index.css';
 import 'vant/lib/index.css';
 
+
+Vue.use(bootstrapvue)
 Vue.use(ElementUI);
 
 // 添加一个全局方法

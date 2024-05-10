@@ -20,6 +20,7 @@
           </path>
         </svg>
       </div>
+      <div v-if="this.$route.name !== 'home'" style="height: 56px;"></div>
 
       <Tabbar v-if="this.$store.state.PAGE_STATE==='Tabbar'" route>
         <TabbarItem icon="home-o"  to="/home">主页</TabbarItem>
@@ -72,6 +73,7 @@ export default {
         this.$message.success("欢迎回来："+response.data.data);
         this.$store.state.IsLogin = true
         this.$store.state.UserName = response.data.data
+        this.$store.state.UserId = response.data.map.user_id
       }else{
         //this.$message.error("error:"+response.data.msg);
         this.$store.state.IsLogin = false
@@ -113,19 +115,18 @@ export default {
 
 <style>
 .demo-nav {
-    position: relative;
-    display: -webkit-box;
-    display: -webkit-flex;
+    position: fixed;  /* 从 relative 改为 fixed */
+    top: 0;           /* 定位到页面顶部 */
+    left: 0;          /* 定位到页面左边 */
+    width: 100%;      /* 让导航栏宽度扩展至全屏 */
     display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
     align-items: center;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
     justify-content: center;
     height: 56px;
     background-color: #fff;
+    z-index: 1000;    /* 确保导航栏位于其他内容之上 */
 }
+
 .demo-nav__title {
     font-weight: 600;
     font-size: 17px;

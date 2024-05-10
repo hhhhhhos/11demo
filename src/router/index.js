@@ -42,8 +42,14 @@ const routes = [
             path: 'info',
             name: 'userinfo',
             component: () => import(/* webpackChunkName: "about5" */ '../views/user/info/VE.vue'),
-            meta: { title: '席巴商城 -用户信息' },
+            meta: { title: '席巴商城 -用户首页' },
 
+          },
+          {
+            path: 'info/details',
+            name: 'userinfodetails',
+            component: () => import(/* webpackChunkName: "about3" */ '../views/user/info/details/VE.vue'),
+            meta: { title: '席巴商城 -用户信息详情' }
           },
           {
             path: 'buylist',
@@ -172,7 +178,7 @@ router.beforeEach((to, from, next) => {
   const allowedPaths = ['/login', '/product','/home','/login3','/url_scan','/gotowechat','/gotopay'];
   
   // 首次路径保存
-  if (!store.state.IsLogin && !allowedPaths.includes(to.path)&& to.path!=='/404') {
+  if (!store.state.IsLogin && !allowedPaths.includes(to.path)&& to.path!=='/404'&& to.path!=='/404msg=商品未找到') {
     sessionStorage.setItem('redirectPath', to.fullPath);
     console.log("保存:"+to.fullPath)
   }

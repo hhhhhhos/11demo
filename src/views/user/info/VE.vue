@@ -1,266 +1,63 @@
 <template>
-  <div>
-
-    <div v-if="!this.$store.state.IsMobile">
-      <h1 class="myborder">用户信息</h1>
-      <div v-loading="isloading1" class="myborder" style="margin: 30px 100px 20px 100px;padding: 10px;">
-        <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
-          <div v-if="!isupdateinfo" style="margin: 10px 90px;display: flex;">
-              <div v-if="index==='addresses'" style="display: flex;">
-                <div style="width: 150px;flex-shrink: 0;">{{ index }}</div>:
-                  <div>
-                    <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                      {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp; | 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
-                    </div>
-                  </div>
-              </div>
-              <div v-else-if="index==='wechat_headimgurl'" style="display: flex;">
-                <div style="width: 150px;display: flex;align-items: center;">{{ index }}</div><span style="display: flex;align-items: center;">:</span><img style="margin:0 20px ;border-radius: 66px;" :src="data">
-              </div>
-              <div v-else style="display: flex;">
-                <div style="width: 150px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data.replace("T"," " ):data }}</div>
-              </div>
-            </div>
-          <div v-else style="margin: 5px 90px;display: flex;">
-            <div style="width: 150px;">{{ index }}</div>:
-            <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
-              <div v-else-if="index==='addresses'">
-                <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
-                  {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
-                </div>
-                <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
-              </div>
-              <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
-            </div>
-          </div>
-        </div>
-      </div>
-      <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
-      <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
-      <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
-      <el-button type="primary" @click="logout">退出登录</el-button>
-      <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="40%" >
-        <el-form ref="form" :model="dialogdata" label-width="80px" >
-          <el-form-item label="所在地区">
-            <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
-          </el-form-item>
-          <el-form-item label="详细地址">
-            <el-input v-model="dialogdata.detail"></el-input>
-          </el-form-item>
-          <el-form-item label="收件人">
-            <el-input v-model="dialogdata.name"></el-input>
-          </el-form-item>
-          <el-form-item label="电话号码">
-            <el-input v-model="dialogdata.phone"></el-input>
-          </el-form-item>
-          <el-form-item label="是否默认">
-            <el-switch
-              v-model="dialogdata.is_default"
-              active-text="是"
-              inactive-text="否"
-              style="float:left;margin-top: 10px;">
-            </el-switch>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirm_change_address">确定</el-button>
-        </span>
-      </el-dialog>
-      <div style="height: 50px;"></div>
+  <div class="my-container">
+    
+    <div class="header">
+      <img
+        style="cursor: pointer;width:70px;height: 70px;border-radius: 90px;margin: 0px 0 15px 25px;border: 2px solid white;"
+        :src="obj?.wechat_headimgurl?obj.wechat_headimgurl:target_img_src"
+        @click="$router.push('/user/info/details')"
+      >
+      <div @click="$router.push('/user/info/details')"  style="margin: 0 0 25px 20px;font-size: 18px;color: white;cursor: pointer;">{{obj?.wechat_nickname?obj?.wechat_nickname:obj?.name}}</div>
+      <img style="margin: 0 0 25px 5px;" v-if="obj?.wechat_nickname!==null" width="18px" height="18px" :src="require('@/assets/wechat_confirm.png')">
     </div>
-
-    <div v-else>
-      
-      <div v-loading="isloading1" class="myborder" style="padding: 10px; width: 90vw;margin: 8px auto;">
-        <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
-          
-          
-          <div v-if="!isupdateinfo" style="margin: 5px 5px;display: flex;font-size: small;">
-              <div v-if="index==='addresses'" style="display: flex;">
-                <div style="width: 100px;flex-shrink: 0;">{{ index }}</div>:
-                  <div>
-                    <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                      <div class="div-spacing">
-                        <div>
-                        所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;
-                        </div>
-                        <div>详细地址：{{ data2.detail }} </div>
-                        <div>收件人：{{ data2.name }} </div>
-                        <div>电话：{{ data2.phone }} </div>
-                        <el-button @click="change_address(index2,data2)" style="margin-left: 0px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
-                        <div v-if="data2.is_default" style="margin: 5px 0 0 15px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-              <div v-else-if="index==='password'" style="display: flex;">
-                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">哈希码</div>
-              </div>
-              <div v-else-if="index==='wechat_headimgurl'" style="display: flex;">
-                <div style="width: 120px;display: flex;align-items: center;">{{ index }}</div><span style="display: flex;align-items: center;">:</span><img style="margin:0 20px ;border-radius: 66px;" :src="data">
-              </div>
-              <div v-else-if="index==='wechat_nickname'" style="display: flex;">
-                <div style="width: 120px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
-              </div>
-              <div v-else-if="index==='wechat_unionid'" style="display: flex;">
-                <div style="width: 120px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
-              </div>
-              <div v-else style="display: flex;">
-                <div style="width: 100px;">{{ index }}</div>:<div style="margin:0 20px ;">{{ index==="create_time"?data?.replace("T"," "):data }}</div>
-              </div>
-          </div>
-
-
-          <div v-else style="margin: 5px 5px;display: flex;font-size: small;">
-            <div style="width: 100px;">{{ index }}</div>:
-            <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
-              <div v-else-if="index==='addresses'">
-                <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
-                  <div class="div-spacing">
-                    <div>
-                    所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;
-                    </div>
-                    <div>详细地址：{{ data2.detail }} </div>
-                    <div>收件人：{{ data2.name }} </div>
-                    <div>电话：{{ data2.phone }} </div>
-                    <el-button @click="change_address(index2,data2)" style="margin-left: 0px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
-                    <div v-if="data2.is_default" style="margin: 5px 0 0 15px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div>
-                  </div>
-                </div>
-                <el-button @click="add_address" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit">新增地址</el-button>
-              </div>
-              <el-input v-else v-model="obj[index]" :disabled="true" size="mini" placeholder="请输入内容"></el-input>
-            </div>
-          </div>
-          
-        </div>
-      </div>
-      <el-button v-if="!isupdateinfo" type="primary" @click="isupdateinfo=true">修改</el-button>
-      <el-button v-else type="primary" @click="updateuserinfo">提交</el-button>
-      <el-button v-if="isupdateinfo" type="primary" @click="cancel">取消</el-button>
-      <el-button type="primary" @click="logout">退出登录</el-button>
-      
-      <el-dialog :title="this.dialog_title+this.dialogindex" :visible.sync="dialogVisible" width="80vw" >
-        <el-form ref="form" :model="dialogdata" label-width="80px" >
-          <el-form-item label="所在地区">
-            <ElA ref="ELA" style="float:left;" :PselectedOptions.sync="dialogdata.info_code" @info="info=>{dialogdata.info=info}" @info_code="info_code=>{dialogdata.info_code=info_code}"></ElA>
-          </el-form-item>
-          <el-form-item label="详细地址">
-            <el-input v-model="dialogdata.detail"></el-input>
-          </el-form-item>
-          <el-form-item label="收件人">
-            <el-input v-model="dialogdata.name"></el-input>
-          </el-form-item>
-          <el-form-item label="电话号码">
-            <el-input v-model="dialogdata.phone"></el-input>
-          </el-form-item>
-          <el-form-item label="是否默认">
-            <el-switch
-              v-model="dialogdata.is_default"
-              active-text="是"
-              inactive-text="否"
-              style="float:left;margin-top: 10px;">
-            </el-switch>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirm_change_address">确定</el-button>
-        </span>
-      </el-dialog>
+    <div class="grid-nav"></div>
+    <div style="text-align: left;margin: 0px 0 0 0;">
+      <van-cell icon="user-circle-o" title-style="margin-left: 5px;" title="详细信息" is-link @click.native="$router.push('/user/info/details')" />
+      <van-cell icon="chat-o" title-style="margin-left: 5px;" title=" 消息通知" is-link @click.native="handleClick('message')" /> <!-- Vue 2 中需要使用 .native 修饰符 -->
+      <van-cell icon="edit" title-style="margin-left: 5px;" style="margin-top: 8px;" title="用户反馈" is-link @click.native="handleClick('feedback')" />
+      <van-cell icon="smile-o" title-style="margin-left: 5px;" title="客服二号" is-link @click.native="handleClick('chatbot')" />
+      <van-cell icon="setting-o" title-style="margin-left: 5px;" style="margin-bottom: 8px;" title="系统设置" is-link @click.native="handleClick('settings')" />
+      <van-cell style="cursor: pointer;text-align: center;height: 50px;align-items: center;font-size: medium;" title="退出登录"  @click="logout"  />
     </div>
-
   </div>
 </template>
 
 <script>
+import { Cell } from 'vant';
+import { Dialog } from 'vant';
 import axios from '@/utils'
 
-import ElA from '/src/components/ElAddress'
-
 export default {
+  name: 'MyIndex',
   components: {
-    ElA
+    'van-cell':Cell
   },
-  data() {
-    return{
-      isloading1:true,
-      datas:[],
-      obj:{
-        "id": null,
-        "name": null,
-        "age": null,
-        "sex": null,
-        "addresses": null,
-        "phone": null,
-        "create_time": Date,
-        "password": null,
-        "money":null
-      },
-      isupdateinfo:false,
-      dialogVisible:false,
-      dialog_title:"修改地址",
-      dialogdata:
-      {
-        "info": "",
-        "name": "",
-        "phone": "",
-        "detail": "",
-        "is_default":""
-      },
-      dialogindex:1
+  props: {},
+  data () {
+    return {
+      obj:null,
+      target_img_src:require('@/assets/load.webp')
     }
   },
-  methods:{
+  methods: {
+    handleClick(routeName) {
+      console.log(routeName)
+      Dialog.alert({message: "<h3>comming soon</h3>"})
+    },
     getuserinfo(){
+
       axios.get('/user/info')
       .then(response=>{
         if(response.data.code)this.isloading1=false
         else this.$message.error("获取失败："+response.data.msg)
         this.obj = response.data.data
-        if(this.obj.addresses===null) this.obj.addresses=[]
-        else{
-          // 默认地址置顶
-          for(var i=0;i<this.obj.addresses.length;i++){
-            if(this.obj.addresses[i].is_default){
-              const temp = this.obj.addresses[0]
-              this.obj.addresses[0] = this.obj.addresses[i]
-              this.obj.addresses[i] = temp
-            }
-          }
+        if(this.obj?.wechat_headimgurl === null){
+          this.target_img_src = require('@/assets/default_headimg2.png')
         }
       }).catch(error=>{
         console.log(error)
         this.$message.error("获取失败："+error.data.msg)
       })
-    },
-    // 点修改
-    updateuserinfo(){
-      //if(this.obj.age!=null&&(this.obj.age>200||this.obj.age<0))return this.$message.error("年龄不合法")
-      //if(this.obj.sex!=null&&(this.obj.sex!="男"&&this.obj.sex!="女"))return this.$message.error("性别不合法")
-      //if (!(/^1[3|4|5|6|7|8][0-9]\d{8}$/.test(this.obj.phone)))return this.$message.error("电话不合法")
-      axios.put('/user/update',this.obj)
-      .then(response=>{
-        if(response.data.code){
-          this.$message.success(response.data.data)
-          this.isloading1 = true
-          this.isupdateinfo = false
-          this.getuserinfo()
-        }
-        else this.$message.error("修改失败："+response.data.msg)   
-      }).catch(error=>{
-        console.log(error)
-        this.$message.error("修改失败："+error)
-      })
-    },
-    // 点取消
-    cancel(){
-      this.isupdateinfo=false
-      this.$message.error("已取消修改")
-      this.getuserinfo()
     },
     logout(){
       axios.get('/user/logout')
@@ -278,67 +75,22 @@ export default {
         this.$message.error("错误："+error.data.msg)
       })
     },
-    // 点击修改圆圈
-    change_address(index2,data2){
-      this.dialog_title = "修改地址"
-      this.dialogindex = index2+1
-      this.dialogdata = Object.assign({},data2) // 浅拷贝
-      this.dialogVisible = true
-    },
-    // 点击展开框的确认
-    confirm_change_address(){
-      if(this.dialogdata.is_default){
-        this.obj.addresses.forEach(address=>address.is_default = false)
-      }
-      //this.dialogdata.info_code = 
-      //this.$refs.ELA.selectedOptions
-      this.obj.addresses[this.dialogindex-1] = Object.assign({},this.dialogdata) // 浅拷贝
-      this.dialogVisible = false
-      //if(true){
-        this.$message.success("已"+this.dialog_title+(this.dialogindex))
-      //}else{
-
-      //}
-        
-    },
-    add_address(){
-      this.dialog_title = "新增地址"
-      this.dialogVisible = true
-      this.dialogindex = this.obj.addresses.length + 1
-      this.dialogdata = {}
-    },
-    delete_address(index2){
-      this.$confirm('删除地址'+(index2+1)+'?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.obj.addresses.splice(index2,1) // 删除数组下标为index2的，后面的数前移
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
-    }
   },
   mounted(){
     this.getuserinfo()
-  },
-  watch:{
   }
 }
 </script>
 
 <style scoped>
-.myhover:hover{
-  background-color: rgb(247,248,255);
+.my-container > .header {
+  height: 160px;
+  background-color: rgb(54, 170, 237);
+  background-size: cover;
+  display: flex;
+  justify-content: start;
+  align-items: center;
 }
-.div-spacing > div {
-  margin-bottom: 10px;
-}
+
+
 </style>

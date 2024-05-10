@@ -99,7 +99,9 @@
         <el-table
           v-loading=IsTableLoading
           :data="tableData"
-          style="width: 100vw;background-color: white;">
+          style="width: 100vw;background-color: white;"
+          ref="expandTable"
+          @row-click="handleRowClick">
 
           <el-table-column
             type="expand"
@@ -107,7 +109,7 @@
             <template slot-scope="props">
               <div style="margin: 0 30px;">
                 <ET1 :Datas="props.row.info" :columns="columns1" :showHeader="false"></ET1>
-                <el-descriptions title="收货信息" style="margin: 20px 0 20px 20px;">
+                <el-descriptions title="收货信息" style="margin: 20px 20px 20px 5px;">
                     <el-descriptions-item label="姓名">{{ props.row.address.name }}</el-descriptions-item>
                     <el-descriptions-item label="手机号">{{ props.row.address.phone }}</el-descriptions-item>
                     <el-descriptions-item label="居住地">{{props.row.address.info?.[0]}}</el-descriptions-item>
@@ -129,23 +131,25 @@
             :align="column.align"
             >
             <template slot-scope="scope" >
-              <div v-if="column.label==='时间'">{{ tableData[scope.$index][column.prop].replace(/T/g, ' ') }}</div>
-              <div v-if="column.label==='订单ID'">{{ tableData[scope.$index][column.prop]}}</div>
-              <div v-if="column.label==='总额'">{{ tableData[scope.$index][column.prop]}}</div>
-              <div v-if="column.label==='件数'">{{ tableData[scope.$index][column.prop]}}</div>
-              <div v-if="column.label==='信息'">
-                <span v-for="(data, index) in tableData[scope.$index][column.prop]" :key="index">
-                  {{ data.product.name }} &nbsp;
-                </span>
-              </div>
-              <div v-if="column.label==='状态'">
-                <el-tag v-if="tableData[scope.$index].status==='未支付'" style="cursor: pointer;" @click="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
-                </el-tag>
-                <el-tag v-else type="success" style="cursor: pointer;" @click="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
-                </el-tag>
-              </div>
-              <div v-if="column.label==='操作'">
-                <el-button @click="confirmtodelete(tableData[scope.$index].id,tableData[scope.$index].status)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+              <div>
+                <div v-if="column.label==='时间'">{{ tableData[scope.$index][column.prop].replace(/T/g, ' ') }}</div>
+                <div v-if="column.label==='订单ID'">{{ tableData[scope.$index][column.prop]}}</div>
+                <div v-if="column.label==='总额'">{{ tableData[scope.$index][column.prop]}}</div>
+                <div v-if="column.label==='件数'">{{ tableData[scope.$index][column.prop]}}</div>
+                <div v-if="column.label==='信息'">
+                  <span v-for="(data, index) in tableData[scope.$index][column.prop]" :key="index">
+                    {{ data.product.name }} &nbsp;
+                  </span>
+                </div>
+                <div v-if="column.label==='状态'">
+                  <el-tag v-if="tableData[scope.$index].status==='未支付'" style="cursor: pointer;" @click.stop="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
+                  </el-tag>
+                  <el-tag v-else type="success" style="cursor: pointer;" @click.stop="gotopay(tableData[scope.$index].status,tableData[scope.$index].id,tableData[scope.$index].totalMoney,tableData[scope.$index].totalNum,tableData[scope.$index].info?.[0].product.name)">{{ tableData[scope.$index][column.prop]}}
+                  </el-tag>
+                </div>
+                <div v-if="column.label==='操作'">
+                  <el-button @click="confirmtodelete(tableData[scope.$index].id,tableData[scope.$index].status)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+                </div>
               </div>
             </template>
           </el-table-column>
@@ -232,6 +236,17 @@ export default {
     }
   },
   methods:{
+    handleRowClick(row) {
+      row.expanded = !row.expanded;
+      this.$refs.expandTable.toggleRowExpansion(row, row.expanded);
+    },
+    handleExpand(props) {
+      // 可以在这里控制展开逻辑
+      // `props` 包含了行数据，`event` 是触摸事件对象
+      // 使用 props.row.toggleRowExpansion() 来展开或收起行
+      console.log("handleExpand")
+      props.row.toggleRowExpansion();
+    },
     // vant手机无限滚动范例
     async onLoad() {
       //var oldScrollPosition
