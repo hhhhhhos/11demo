@@ -4,7 +4,7 @@
     <div v-if="!this.$store.state.IsMobile">
       <h1 class="myborder">用户信息</h1>
 
-      <img v-lazy style="height:80px;margin: 15px 0 0px 0 ;border-radius: 66px;" :src="obj.wechat_headimgurl?obj.wechat_headimgurl:require('@/assets/default_headimg1.webp')">
+      <img v-lazy style="height:80px;margin: 15px 0 0px 0 ;border-radius: 66px;" :src="obj.wechat_headimgurl?obj.wechat_headimgurl:target_img_src">
       
       <div v-loading="isloading1" class="myborder" style="margin: 30px 100px 20px 100px;padding: 10px;">
         <div class="myhover" v-for="(data,index) in this.obj" :key="index" style="text-align: left;display: flex;">
@@ -27,7 +27,7 @@
           <div v-else style="margin: 5px 90px;display: flex;">
             <div style="width: 150px;">{{ index }}</div>:
             <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <el-input v-if="index!='id'&& index!='ip_location' && index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
               <div v-else-if="index==='addresses'">
                 <div style="margin:10px 20px 20px 10px;" v-for="(data2,index2) in data" :key="index2">
                   {{ index2+1 }}. | 所在地区：{{ data2.info?.[0] }} / {{ data2.info?.[1] }} / {{ data2.info?.[2] }} &nbsp;| 详细地址：{{ data2.detail }} | 收件人：{{ data2.name }} | 电话：{{ data2.phone }} <div v-if="data2.is_default" style="margin: 5px 0 0 30px;display: inline-block;background-color: rgba(127, 255, 212, 0.648);border: 1px rgba(0, 0, 0, 0.171) solid;border-radius: 5px;padding: 5px;color: rgb(14, 198, 249);">默认</div><el-button @click="change_address(index2,data2)" style="margin-left: 20px;" size="mini" type="primary" icon="el-icon-edit" circle></el-button><el-button size="mini" @click="delete_address(index2)" type="danger" icon="el-icon-delete" circle></el-button>
@@ -121,7 +121,7 @@
           <div v-else style="margin: 5px 5px;display: flex;font-size: small;">
             <div style="width: 100px;">{{ index }}</div>:
             <div style="margin:0px 20px ;">
-              <el-input v-if="index!='id'&&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
+              <el-input v-if="index!='id' && index!='ip_location'  &&index!='create_time'&&index!='role'&&index!='addresses'&&index!='money'&&index!='version'&&index!='wechat_nickname'&&index!='wechat_unionid'&&index!='wechat_headimgurl'&&index!='email'" v-model="obj[index]" size="mini" placeholder="请输入内容"></el-input>
               <div v-else-if="index==='addresses'">
                 <div style="margin:0 20px 20px 20px;" v-for="(data2,index2) in data" :key="index2">
                   <div class="div-spacing">
@@ -192,6 +192,7 @@ export default {
   },
   data() {
     return{
+      target_img_src:require('@/assets/load.webp'),
       isloading1:true,
       datas:[],
       obj:{
@@ -228,6 +229,11 @@ export default {
         this.obj = response.data.data
         if(this.obj.addresses===null) this.obj.addresses=[]
         else{
+          if(response.data.data?.wechat_headimgurl!==null){
+            this.target_img_src = response.data.data?.wechat_headimgurl
+          }else{
+            this.target_img_src = require('@/assets/default_headimg1.webp')
+          }
           // 默认地址置顶
           for(var i=0;i<this.obj.addresses.length;i++){
             if(this.obj.addresses[i].is_default){

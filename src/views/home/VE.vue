@@ -148,18 +148,19 @@
                 :key="index">
             <Card
               style="border-radius: 10px; overflow: hidden;background-color: white;"
-              :num=product.sold_num
+              :num=product.num
               :price=product.price
               :desc=product.info
               :title=product.name
               :thumb="require(`@/assets/${product.photo}.webp`)"
             >
+
             <template #bottom >
               <div style="float:left;margin-left: 10px;">
-                <i class="el-icon-view"></i>
+                <i style="color: gray;" class="el-icon-view"></i>
                 <span style="margin-left: 3px;color: #00000060;">{{product.visited_num}}</span>
 
-                <i class="el-icon-view"></i>
+                <i style="margin-left: 10px;color: gray;" class="el-icon-chat-round" ></i>
                 <span style="margin-left: 3px;color: #00000060;">{{product.comment_num}}</span>
               </div>
             </template>
@@ -386,6 +387,11 @@ export default {
 </script>
 
 <style scoped>
+.van-card__price {
+  position: absolute;
+  right: 44%;
+
+}
 
   
   .el-carousel__arrow {

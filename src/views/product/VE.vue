@@ -65,6 +65,18 @@
         </van-skeleton>
       </div>
 
+      <!-- 评论 -->
+      <div class="demo-nav2">
+        <input
+          style="margin:5px auto;width: 81%;"
+          class="el-input__inner"
+          placeholder="发布一条评论吧"
+          v-model="comment_info"
+          type="text"
+          @click="van_popup_show=true"
+        />
+      </div>
+
     </div>
 
     <!-- 手机 -->
@@ -72,7 +84,15 @@
 
       <!--图 -->
       <div>
-        <img @click="$openURL(require(`@/assets/${OneData.photo}.webp`))" loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:90%;width: 100%;object-fit:cover;cursor: pointer;">
+        <van-swipe class="my-swipe" indicator-color="white">
+          <van-swipe-item>
+            <img @click="$openURL2(require(`@/assets/${OneData.photo}.webp`))" loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:90%;width: 100%;object-fit:cover;cursor: pointer;">
+          </van-swipe-item>
+          <van-swipe-item>
+            <img @click="$openURL2(require(`@/assets/${OneData.photo}.webp`))" loading="lazy"  :src="require(`@/assets/${OneData.photo}.webp`)"  style="height:90%;width: 100%;object-fit:cover;cursor: pointer;">
+          </van-swipe-item>
+        </van-swipe>
+        
       </div>
 
       <!--信息 -->
@@ -96,8 +116,8 @@
       </van-dropdown-menu>
 
       <!--评价 -->
-      <div style="width:90%;text-align: left;margin: 10px auto;background-color: white;padding-left: 10px;" class="myborder">
-        <h3>商品评论<span style="font-size: small;font-weight:inherit;color: rgba(0,0,0,0.6);">（{{ `共${$refs?.comment?.total}条` }}）</span></h3>
+      <div ref="commentdiv" style="width:90%;text-align: left;margin: 10px auto;background-color: white;padding-left: 10px;" class="myborder">
+        <h3>评论<span style="font-size: small;font-weight:inherit;color: rgba(0,0,0,0.6);">（{{ `共${$refs?.comment?.total}条` }}）</span></h3>
         <div style="margin: 10px 10px 10px 10px;color: #00000060;display: none;">暂无评论</div>
         
         <!--评价骨架 -->
@@ -111,7 +131,7 @@
       <div style="height: 60px;width: 100%;"></div>
 
       <!--商品下栏 -->
-      <van-goods-action style="z-index:99">
+      <van-goods-action style="z-index:99;" :class="{ 'MT': MT_active, 'MT2': MT_active2 }" >
         <van-goods-action-icon icon="chat-o" text="客服" @click="onClickIcon(1)"/>
         <van-goods-action-icon v-if="mobile.TotalBuylistNum" icon="cart-o" text="购物车" :badge="mobile.TotalBuylistNum" @click="onClickIcon(2)"/>
         <!-- 这里是:badge="mobile.TotalBuylistNum"冒红泡 0 也会显示 所以分开-->
@@ -120,6 +140,19 @@
         <van-goods-action-button type="warning" text="加入购物车" @click="onClickIcon(5)"/>
         <van-goods-action-button type="danger" text="立即购买" @click="onClickIcon(6)"/>
       </van-goods-action>
+
+      <!--评论 -->
+      <div class="demo-nav3" :class="{ 'MT': MT_active2, 'MT2': MT_active }" style="margin-bottom: -50px;">
+        <input
+          style="margin:5px 10px;"
+          class="el-input__inner"
+          placeholder="发布一条评论吧"
+          type="text"
+          v-model="comment_info"
+          @click="van_popup_show=true"
+        />
+      </div>
+
 
       <!--点加购弹出 -->
       <van-popup v-model="mobile.show" position="bottom" style=" height: 70% ;" closeable>
@@ -173,8 +206,26 @@
       </van-popup>
 
 
+
     </div>
 
+    <!-- 点评论 弹出输入 -->
+    <van-popup v-model="van_popup_show" position="bottom" style="height: 200px;background-color: rgb(243, 243, 244);overflow-x: hidden;" >
+      <div class="el-input">
+        <input
+          style="width: 95%;margin: 5px auto;"
+          class="el-input__inner"
+          v-model="comment_info"
+          @keyup.enter="sendComment"
+          enterkeyhint="send"
+          placeholder="发布一条评论吧"
+          type="text"
+        />
+      </div>
+      <div style="height: 150px;overflow-y: scroll;">
+        <EmojiPicker @emoji-selected="selectEmoji" />
+      </div>
+    </van-popup>
 
 
   </div>
@@ -190,7 +241,9 @@ import { Rate } from 'vant';
 import { Skeleton } from 'vant';
 import { DropdownMenu, DropdownItem } from 'vant';
 import C from '@/components/comment/My_Test.vue';
-
+import { Swipe, SwipeItem } from 'vant';
+import { throttle } from 'lodash';
+import EmojiPicker from '@/components/emoji/EmojiPicker.vue';
 
 export default {
   components: {
@@ -202,10 +255,17 @@ export default {
     'van-skeleton':Skeleton,
     'van-dropdown-menu':DropdownMenu,
     'van-dropdown-item':DropdownItem,
+    'van-swipe':Swipe,
+    'van-swipe-item':SwipeItem,
+    EmojiPicker,
     C
   },
   data() {
     return{
+      van_popup_show:false,
+      comment_info:"",
+      MT_active:false,
+      MT_active2:false,
       value2: 'a',
       option2: [
         { text: '点赞排序', value: 'a' },
@@ -242,11 +302,32 @@ export default {
     }
   },
   methods:{
+    selectEmoji(emoji){
+      console.log(emoji)
+      this.comment_info += emoji
+    },
+    sendComment(){
+      console.log("sendComment!!")
+      // val是KeyEvent
+      //this.$message(this.comment_info)
+      axios.post('/comment/addone',{
+        "comment_info":this.comment_info,
+        "product_id":this.mobile.query_id,
+        "father_comment_id":0,
+        "replay_to_user_id":0 
+      }).then(response=>{
+        if(response.data.code===0)this.$message.error(response.data.msg)
+        else {
+          Toast.success(response.data.data);       
+        }
+      })
+      this.comment_info = ""
+    },
     // 筛选框关闭触发
     dropdown_closed(value2){
       console.log(value2)
       if(this.dropdown_isclick){
-        this.$refs.comment.dropdown_closed(value2)
+        this.$refs.comment.dropdown_closed()
         this.dropdown_isclick = false
       }
     },
@@ -295,9 +376,13 @@ export default {
     onClickIcon(val){
       console.log(val)
       // 1 客服 2,3 购物车 4 店铺 5 加购 6 立即购买
-      if(val === 4)this.$router.push('/home')
+      if(val === 1)
+        this.$router.push('/kefu')
       else if(val === 2 || val === 3){
         this.$router.push('/user/buylist')
+      }
+      else if(val === 4){
+        this.$router.push('/home')
       }
       else if(val === 5){
         this.mobile.show = true
@@ -310,12 +395,12 @@ export default {
       else Dialog.alert({message: "<h3>comming soon</h3>"})
     },
     // 初始化加载
-    test(){
+    async test(){
       console.log(this.$route.query.id)
       console.log("mobile_show:"+this.$route.query.mobile_show)
       if(this.mobile.query_id===null)this.mobile.query_id = this.$route.query.id // 只在首次加载初始化
       if(this.$route.query.mobile_show)this.mobile.show = true
-      axios.get(`product/getone?id=${this.mobile.query_id?this.mobile.query_id:this.$route.query.id}`).then(response=>{
+      await axios.get(`product/getone?id=${this.mobile.query_id?this.mobile.query_id:this.$route.query.id}`).then(response=>{
         if(response.data.data===null)this.$router.push('/404?msg=商品未找到')
         this.OneData = response.data.data
         this.IsTableLoading = false
@@ -325,18 +410,23 @@ export default {
         console.log(response)
         // 拿同类商品
         this.getalltype2()
-        
+        // 去除遮罩
+        this.$store.state.zhezhao_show = false
+
       }).catch(error=>{
         console.log(error)
         this.$router.push('/home')
       })
       
-      // 加载新评论
-      this.$refs.comment.dropdown_closed(this.mobile.query_id)
+      // 加载新评论 (防止组件没加载完 延时)
+      setTimeout(() => { this.$refs.comment.dropdown_closed(this.mobile.query_id)},200)
 
 
       // 获取购物车数量
       this.getbuylist()
+
+      
+
     },
     addtobuylist(){
       if(!this.$store.state.IsMobile)
@@ -455,20 +545,94 @@ export default {
         console.log(error)
       })
     },
+    // 监听滚动
+    handleScroll(){
+      const rect = this.$refs.commentdiv.getBoundingClientRect();
+      console.log("元素距离视口顶部的距离:", rect.top);
+      if(this.$store.state.CURRENT_HEIGHT>(rect.top+200)){
+        console.log("进入评论框")
+        this.MT_active = true
+        this.MT_active2 = false
+      }else{
+        console.log("评论框之外")
+        if(this.MT_active)this.MT_active2 = true
+        this.MT_active = false
+      }
+        
+    }
   },
   
 
   mounted(){
+    this.$store.state.zhezhao_show = true
     this.$store.state.PAGE_STATE = ""
+    this.throttlehandleScroll = throttle(this.handleScroll,300) // 节流
+    window.addEventListener('scroll', this.throttlehandleScroll);
     this.test()
   },
   beforeDestroy(){
     this.$store.state.PAGE_STATE = "Tabbar"
+    window.removeEventListener('scroll', this.handleScroll);
   }
 }
 </script>
 
 <style >
+.demo-nav2 {
+    position: fixed;  /* 从 relative 改为 fixed */
+    bottom: 0;           /* 定位到页面顶部 */
+    left: 0;          /* 定位到页面左边 */
+    width: 100%;      /* 让导航栏宽度扩展至全屏 */
+    min-width: 1600px;
+    display: flex;
+    background-color: rgb(243,243,244);
+    height: 50px;
+}
+.demo-nav3 {
+    position: fixed;  /* 从 relative 改为 fixed */
+    bottom: 0;           /* 定位到页面顶部 */
+    left: 0;          /* 定位到页面左边 */
+    width: 100%;      /* 让导航栏宽度扩展至全屏 */
+    display: flex;
+    background-color: rgb(243,243,244);
+    height: 50px;
+}
+@keyframes hide
+{
+	from {margin-bottom: 0px;}
+	to {margin-bottom: -50px;}
+}
+
+@-webkit-keyframes hide /* Safari and Chrome */
+{
+	from {margin-bottom: 0px;}
+	to {margin-bottom: -50px;}
+}
+
+@keyframes show
+{
+	from {margin-bottom: -50px;}
+	to {margin-bottom: 0px;}
+}
+
+@-webkit-keyframes show /* Safari and Chrome */
+{
+	from {margin-bottom: -50px;}
+	to {margin-bottom: 0px;}
+}
+.MT {
+  animation:hide 0.5s;
+	-webkit-animation:hide 0.5s; /* Safari and Chrome */
+  animation-fill-mode: forwards; /* 确保动画结束后停在最后一帧 */
+  -webkit-animation-fill-mode: forwards; /* 对于 Safari 和 Chrome */
+}
+.MT2 {
+  animation:show 0.5s;
+	-webkit-animation:show 0.5s; /* Safari and Chrome */
+  animation-fill-mode: forwards; /* 确保动画结束后停在最后一帧 */
+  -webkit-animation-fill-mode: forwards; /* 对于 Safari 和 Chrome */
+}
+
 .el-table tbody tr:hover>td {
             background-color:unset !important 
         }

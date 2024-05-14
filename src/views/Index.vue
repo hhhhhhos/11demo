@@ -14,11 +14,16 @@
     <div v-else>
       <!-- 返回头标 -->
       <div v-if="this.$route.name !== 'home'" class="demo-nav" style="">
-        <div class="demo-nav__title">{{this.$route.meta.title.replace("席巴商城 -","")}}</div>
+        <div class="demo-nav__title">{{this.$route.meta.title.replace("席巴商城 -","")}}
+          <span v-if="this.$route.name === 'kefu'"> {{ "- "+$store.state.kefu_name }}</span>
+          <span v-if="this.$route.name === 'fanorguanzhu'"> {{ "- "+$store.state.fanorguanzhu_name }}</span>
+        </div>
         <svg viewBox="0 0 1000 1000" class="demo-nav__back" @click="$router.go(-1)">
           <path fill="#969799" fill-rule="evenodd" d="M296.114 508.035c-3.22-13.597.473-28.499 11.079-39.105l333.912-333.912c16.271-16.272 42.653-16.272 58.925 0s16.272 42.654 0 58.926L395.504 498.47l304.574 304.574c16.272 16.272 16.272 42.654 0 58.926s-42.654 16.272-58.926 0L307.241 528.058a41.472 41.472 0 0 1-11.127-20.023z">
           </path>
         </svg>
+        <!-- 右上角菜单图标 -->
+        <van-icon @click="popup_show=true"  style="cursor: pointer;position: absolute;right: 0;margin-right: 10px;font-weight: bold;" name="wap-nav" />
       </div>
       <div v-if="this.$route.name !== 'home'" style="height: 56px;"></div>
 
@@ -29,11 +34,26 @@
         <TabbarItem icon="contact-o" to="/user/info" >个人信息</TabbarItem>
       </Tabbar>
 
+      <!-- 右上角菜单弹出-->
+      <van-popup v-model="popup_show" position="top" style="text-align: center;" >
+        <div >
+          <van-cell-group class="mycell">
+            <van-cell  title="首页"  is-link to="/home" @click="popup_show=false"/>
+            <van-cell  title="个人信息" is-link  to="/user/info" @click="popup_show=false"/>
+          </van-cell-group>
+        </div>  
+      </van-popup>
+
     </div>
 
     <router-view/>
 
     <div style="height: 100px;width: 20px;"></div>
+
+    <!--加载遮罩-->
+    <div v-if="$store.state.zhezhao_show" class="zhezhao">
+      <i class="el-icon-loading"></i>
+    </div>
 
   </div>
 </template>
@@ -42,15 +62,23 @@
 <script>
 import axios from '@/utils'
 import { Tabbar, TabbarItem } from 'vant';
+import { Icon } from 'vant';
+import { Popup } from 'vant';
+import { Cell, CellGroup } from 'vant';
 
 export default {
   components:{
     Tabbar,
     TabbarItem,
+    'van-icon':Icon,
+    'van-popup':Popup,
+    'van-cell':Cell,
+    'van-cell-group':CellGroup
   },
   data() {
     return{
-      url:process.env.VUE_APP_ADMIN_URL
+      url:process.env.VUE_APP_ADMIN_URL,
+      popup_show:false
     }
   },
   methods:{
@@ -70,7 +98,10 @@ export default {
     axios.get('/user/name')
     .then(response=>{
       if(response.data.code){
-        this.$message.success("欢迎回来："+response.data.data);
+        this.$message.success({
+          showClose: true,
+          message:"欢迎回来："+response.data.data
+        });
         this.$store.state.IsLogin = true
         this.$store.state.UserName = response.data.data
         this.$store.state.UserId = response.data.map.user_id
@@ -140,4 +171,27 @@ export default {
     height: 24px;
     cursor: pointer;
 }
+.van-icon-wap-nav{
+  line-height: 30px;
+}
+.mycell > div{
+  font-size:14px;
+
+}
+.zhezhao{
+  position: absolute;
+  top:0;
+  width: 100%;
+  height: 100%;
+  z-index:9999999;
+  background-color: rgba(255, 255, 255, 0.949);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zhezhao > i{
+  font-size: 80px;
+  color: #0000005f;
+}
+
 </style>

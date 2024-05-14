@@ -20,6 +20,12 @@ const routes = [
         meta: { title: '席巴商城 -首页' }
       },
       {
+        path: '/kefu',
+        name: 'kefu',
+        component: () => import(/* webpackChunkName: "about1" */ '../views/kefu/VE.vue'),
+        meta: { title: '席巴商城 -客服' }
+      },
+      {
         path: '/product',
         name: 'product',
         component: () => import(/* webpackChunkName: "about2" */ '../views/product/VE.vue'),
@@ -43,6 +49,20 @@ const routes = [
             name: 'userinfo',
             component: () => import(/* webpackChunkName: "about5" */ '../views/user/info/VE.vue'),
             meta: { title: '席巴商城 -用户首页' },
+
+          },
+          {
+            path: 'otheruserinfo',
+            name: 'otheruserinfo',
+            component: () => import(/* webpackChunkName: "about5" */ '../views/user/otheruserinfo/VE.vue'),
+            meta: { title: '席巴商城 -其他用户首页' },
+
+          },
+          {
+            path: 'fanorguanzhu',
+            name: 'fanorguanzhu',
+            component: () => import(/* webpackChunkName: "about5" */ '../views/user/fanorguanzhu/VE.vue'),
+            meta: { title: '席巴商城 -列表' },
 
           },
           {
@@ -175,7 +195,7 @@ router.beforeEach((to, from, next) => {
   }
 
   // 前端登录跳转
-  const allowedPaths = ['/login', '/product','/home','/login3','/url_scan','/gotowechat','/gotopay'];
+  const allowedPaths = ['/login', '/product','/home','/login3','/url_scan','/gotowechat','/gotopay','/user/otheruserinfo'];
   
   // 首次路径保存
   if (!store.state.IsLogin && !allowedPaths.includes(to.path)&& to.path!=='/404'&& to.path!=='/404msg=商品未找到') {

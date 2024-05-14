@@ -35,7 +35,7 @@ import comment from './components/comment'
 // import HelloWorld from '@/components/HelloWorld.vue'
 import axios from '@/utils'
 import { List} from 'vant';
-import _ from 'lodash';
+import { throttle } from 'lodash';
 
 export default {
   components: {
@@ -70,7 +70,7 @@ export default {
     async dropdown_closed(product_id) {
       //var oldScrollPosition
       console.log("重新获取,参数"+product_id+"props"+this.product_id) //参数传的没这么快 要手动
-      this.product_id_fast_local = product_id
+      if(product_id)this.product_id_fast_local = product_id
       // 重新初始化一些数据
       this.tableData = []
       this.total = 0
@@ -137,7 +137,7 @@ export default {
   //
   created () {
     // 节流OnLoad 1._.throttle 每n秒钟只调用一次 2._.debounce n秒之后无操作 调用
-    this.debouncedOnLoad = _.throttle(this.onLoad, 1000);
+    this.debouncedOnLoad = throttle(this.onLoad, 1000);
   }
 }
 </script>

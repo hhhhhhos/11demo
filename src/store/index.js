@@ -13,5 +13,8 @@ export default new Vuex.Store({
     CURRENT_HEIGHT:null,
     IsMobile:false,     // 判断是否是手机
     PAGE_STATE:'Tabbar',// 下边栏状态
+    kefu_name:"未指定", // 随机到的客服名字
+    zhezhao_show:false, // index页面的遮罩
+    fanorguanzhu_name:'' // 标题显示是粉丝列表还是关注列表
   }
 })
